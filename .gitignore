@@ -1,0 +1,4 @@
+# 端末ごとに違う画面レイアウト（同期すると競合しやすい）
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.trash/

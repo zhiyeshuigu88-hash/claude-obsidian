@@ -1,0 +1,9 @@
+{
+  "id": "day-week-tasks",
+  "name": "今日・今週のタスク",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "日記ノートと週ノートのチェックリストで、1日ごと・1週間ごとのタスクを管理します。",
+  "author": "zhiyeshuigu88-hash",
+  "isDesktopOnly": false
+}
