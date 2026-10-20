@@ -1,0 +1,142 @@
+.dwt-view {
+  padding: var(--size-4-3);
+}
+
+.dwt-tabs {
+  display: flex;
+  gap: var(--size-4-2);
+  margin-bottom: var(--size-4-3);
+}
+
+.dwt-tab {
+  flex: 1;
+}
+
+.dwt-tab.is-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.dwt-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  margin-bottom: var(--size-4-3);
+}
+
+.dwt-nav-title {
+  flex: 1;
+  text-align: center;
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+}
+
+.dwt-start {
+  margin-bottom: var(--size-4-4);
+}
+
+.dwt-wide-btn {
+  width: 100%;
+  margin-top: var(--size-4-2);
+}
+
+.dwt-hint,
+.dwt-empty,
+.dwt-progress {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  margin: var(--size-4-2) 0;
+}
+
+.dwt-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--size-4-3);
+}
+
+.dwt-item {
+  padding: var(--size-4-1) 0;
+  display: flex;
+  gap: var(--size-4-2);
+  align-items: flex-start;
+}
+
+.dwt-label {
+  display: flex;
+  gap: var(--size-4-2);
+  align-items: flex-start;
+  cursor: pointer;
+  width: 100%;
+  min-height: 28px;
+}
+
+.dwt-item.is-done .dwt-text {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.dwt-item.is-forwarded,
+.dwt-item.is-other {
+  color: var(--text-faint);
+}
+
+.dwt-mark {
+  width: 1.2em;
+  text-align: center;
+}
+
+.dwt-add {
+  display: flex;
+  gap: var(--size-4-2);
+}
+
+.dwt-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.dwt-subheading {
+  margin: var(--size-4-6) 0 var(--size-4-2);
+}
+
+.dwt-day-row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  padding: var(--size-4-1) var(--size-4-1);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.dwt-day-row:hover,
+.dwt-day-row.is-today {
+  background-color: var(--background-modifier-hover);
+}
+
+.dwt-day-label {
+  width: 5.5em;
+}
+
+.dwt-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--background-modifier-border);
+  overflow: hidden;
+}
+
+.dwt-bar-fill {
+  height: 100%;
+  background-color: var(--interactive-accent);
+}
+
+.dwt-day-count {
+  width: 3em;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.dwt-modal-item {
+  padding: var(--size-4-2) 0;
+}
