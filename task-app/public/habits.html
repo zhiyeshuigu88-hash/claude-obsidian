@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>習慣 | Focus Task</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#c67139" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="nav-root"></aside>
+    <main>
+      <div class="content" style="max-width:760px;">
+        <div class="header-row">
+          <h1>習慣</h1>
+          <button type="button" class="btn btn-primary" id="add-habit-btn">＋ 習慣を追加</button>
+        </div>
+        <p class="text-muted" style="font-size:13px;margin-bottom:16px;">
+          毎日の行動や週に◯回の目標など、「やらなかった日は翌日に持ち越さない」ものを管理します。
+          迷ったら「やらなかったら翌日に持ち越す？」で判断 — 持ち越すならタスク、流れていいなら習慣です。
+        </p>
+
+        <section class="card habit-overview hidden" id="habit-overview"></section>
+        <div class="habit-list" id="habit-list"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="habits.js"></script>
+</body>
+</html>

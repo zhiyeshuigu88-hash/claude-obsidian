@@ -1,0 +1,13 @@
+{
+  "name": "focus-task",
+  "version": "1.0.0",
+  "description": "タスク管理＋ポモドーロタイマー＋実績統計のローカルWebアプリ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
