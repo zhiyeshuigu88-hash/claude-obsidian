@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Task</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#c67139" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="nav-root"></aside>
+    <main>
+      <div class="content">
+        <h1>Home</h1>
+
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div>
+            <h2>ポモドーロタイマー</h2>
+            <div class="card">
+              <div class="timer-mode" data-el="mode-label">作業中</div>
+              <div class="timer-display" data-el="time-display">25:00</div>
+              <div class="field">
+                <label>紐付けるタスク</label>
+                <select data-el="task-select">
+                  <option value="">（選択なし）</option>
+                </select>
+              </div>
+              <div class="timer-controls">
+                <button data-el="start-btn" class="btn btn-primary">開始</button>
+                <button class="btn btn-secondary" data-el="pause-btn" style="display:none;">一時停止</button>
+                <button class="btn btn-secondary" data-el="skip-btn">スキップ</button>
+                <button class="btn btn-ghost" data-el="reset-btn">リセット</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2>本日期限のタスク</h2>
+            <div data-el="due-today-list" class="stack-8"></div>
+          </div>
+
+          <div>
+            <div class="header-row" style="margin-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <h2>今日の習慣</h2>
+                <span class="tag tag-accent-2" data-el="habit-count">0 / 0</span>
+              </div>
+              <a href="habits.html" class="btn btn-ghost">管理</a>
+            </div>
+            <div data-el="habit-list" class="stack-8"></div>
+          </div>
+
+          <div>
+            <div class="header-row" style="margin-bottom:10px;">
+              <h2>タスク一覧</h2>
+              <button type="button" class="btn btn-icon btn-primary fab" data-el="add-toggle-btn" title="新規タスク作成" aria-label="新規タスク作成">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            </div>
+            <div class="filters" data-el="filters"></div>
+            <div data-el="task-list" class="stack-10"></div>
+          </div>
+        </div>
+      </div>
+      <!-- 新規タスク作成モーダル -->
+      <div data-el="create-form-wrap" class="dialog-backdrop hidden">
+        <form data-el="create-form" class="dialog" style="width:min(460px,100%);max-height:90vh;overflow:auto;">
+          <div class="dialog-title">新規タスク作成</div>
+          <div class="field"><label>タイトル</label><input name="title" placeholder="タイトル" required /></div>
+          <div class="field"><label>詳細</label><textarea name="description" placeholder="詳細" rows="2"></textarea></div>
+          <div class="field"><label>期限</label><input name="dueDate" type="datetime-local" /></div>
+          <div class="field">
+            <label>優先度</label>
+            <div class="seg" data-el="new-priority-seg">
+              <a href="#" class="seg-opt" data-value="high">高</a>
+              <a href="#" class="seg-opt active" data-value="medium">中</a>
+              <a href="#" class="seg-opt" data-value="low">低</a>
+            </div>
+          </div>
+          <div class="field"><label>タグ（カンマ区切り）</label><input name="tags" placeholder="タグ（カンマ区切り）" /></div>
+          <div class="field"><label>見積もり時間（分・任意）</label><input name="estimateMinutes" type="number" min="1" placeholder="例: 30" /></div>
+          <div class="dialog-actions">
+            <button type="button" class="btn btn-ghost" data-el="create-cancel">キャンセル</button>
+            <button type="submit" class="btn btn-primary">作成</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>

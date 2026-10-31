@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>設定 | Focus Task</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#c67139" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="nav-root"></aside>
+    <main>
+      <div class="content" style="max-width:480px;">
+        <h1>設定</h1>
+        <form id="settings-form" class="card">
+          <div class="field"><label>作業時間（分）</label><input type="number" id="work-minutes" min="1" /></div>
+          <div class="field"><label>休憩時間（分）</label><input type="number" id="break-minutes" min="1" /></div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button type="submit" class="btn btn-primary">保存</button>
+            <span id="saved-msg" class="tag tag-accent-2" style="display:none;">保存しました</span>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

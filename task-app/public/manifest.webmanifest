@@ -1,0 +1,17 @@
+{
+  "name": "Focus Task",
+  "short_name": "Focus Task",
+  "description": "タスク管理・ポモドーロタイマー・習慣・タイムラインをまとめたアプリ",
+  "lang": "ja",
+  "start_url": "/index.html",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#f5ead8",
+  "theme_color": "#c67139",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
