@@ -27,11 +27,12 @@ function dateKey(d) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-function recordSession({ taskId, startTime, endTime, duration, type }) {
+function recordSession({ taskId, habitId, startTime, endTime, duration, type }) {
   const sessions = readAll();
   const session = {
     id: crypto.randomUUID(),
     taskId: taskId || null,
+    habitId: habitId || null,
     startTime,
     endTime,
     duration,

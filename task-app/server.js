@@ -73,8 +73,8 @@ app.get('/api/pomodoro/stats', (req, res) => {
 });
 
 app.post('/api/pomodoro/sessions', (req, res) => {
-  const { taskId, startTime, endTime, duration, type } = req.body;
-  const session = pomodoroStore.recordSession({ taskId, startTime, endTime, duration, type });
+  const { taskId, habitId, startTime, endTime, duration, type } = req.body;
+  const session = pomodoroStore.recordSession({ taskId, habitId, startTime, endTime, duration, type });
   res.status(201).json(session);
 });
 

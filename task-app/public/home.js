@@ -273,7 +273,8 @@ let timerMode = 'work';
 let secondsLeft = workMinutes * 60;
 let timerIntervalId = null;
 let timerStartedAt = null;
-let selectedTaskId = '';
+// 紐付け先。値は 'task:<id>' または 'habit:<id>'（未選択は ''）。
+let selectedTarget = '';
 
 function durationForMode(m) {
   return (m === 'work' ? workMinutes : breakMinutes) * 60;
@@ -287,6 +288,11 @@ function renderTimer() {
   scoped(document, 'task-select').forEach((el) => (el.disabled = Boolean(timerIntervalId)));
 }
 
+function linkedId(kind) {
+  if (timerMode !== 'work' || !selectedTarget.startsWith(kind + ':')) return null;
+  return selectedTarget.slice(kind.length + 1);
+}
+
 async function handleTimerComplete() {
   clearInterval(timerIntervalId);
   timerIntervalId = null;
@@ -297,7 +303,8 @@ async function handleTimerComplete() {
 
   try {
     await apiSend('POST', '/api/pomodoro/sessions', {
-      taskId: timerMode === 'work' && selectedTaskId ? selectedTaskId : null,
+      taskId: linkedId('task'),
+      habitId: linkedId('habit'),
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
       duration,
@@ -362,18 +369,20 @@ scoped(document, 'skip-btn').forEach((el) => el.addEventListener('click', handle
 scoped(document, 'reset-btn').forEach((el) => el.addEventListener('click', handleTimerReset));
 scoped(document, 'task-select').forEach((el) => {
   el.addEventListener('change', () => {
-    selectedTaskId = el.value;
+    selectedTarget = el.value;
   });
 });
 
 async function loadTimerTaskOptions() {
-  const tasks = await apiGet('/api/tasks?status=todo');
-  const optionsHtml =
-    '<option value="">（選択なし）</option>' +
-    tasks.map((t) => `<option value="${t.id}">${escapeHtml(t.title)}</option>`).join('');
+  const [tasks, habits] = await Promise.all([apiGet('/api/tasks?status=todo'), apiGet('/api/habits')]);
+  const option = (kind, item) => `<option value="${kind}:${item.id}">${escapeHtml(item.title)}</option>`;
+  const group = (label, kind, items) =>
+    items.length ? `<optgroup label="${label}">${items.map((i) => option(kind, i)).join('')}</optgroup>` : '';
+  const optionsHtml = '<option value="">（選択なし）</option>' + group('タスク', 'task', tasks) + group('習慣', 'habit', habits);
   scoped(document, 'task-select').forEach((el) => {
     el.innerHTML = optionsHtml;
-    el.value = selectedTaskId;
+    el.value = selectedTarget;
+    selectedTarget = el.value; // 消えた項目を指していたら未選択に戻す
   });
 }
 
