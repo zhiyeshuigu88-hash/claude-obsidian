@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>週間 | Focus Task</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#c67139" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="nav-root"></aside>
+    <main>
+      <div class="content" style="max-width:1100px;">
+        <div class="header-row">
+          <h1>週間</h1>
+          <div class="seg">
+            <a href="timeline.html" class="seg-opt">日</a>
+            <a href="week.html" class="seg-opt active">週</a>
+          </div>
+        </div>
+        <p class="text-muted" style="font-size:13px;margin-bottom:16px;">
+          1週間の期限タスクと時間枠を一覧できます。日付をクリックするとその日の日間ビューを開きます。
+        </p>
+
+        <div class="timeline-date-nav">
+          <button type="button" class="btn btn-secondary" id="prev-week" title="前の週">←</button>
+          <div class="timeline-date-label" id="week-label" style="min-width:220px;"></div>
+          <button type="button" class="btn btn-secondary" id="next-week" title="次の週">→</button>
+          <button type="button" class="btn btn-ghost" id="this-week-btn">今週</button>
+        </div>
+
+        <div class="week-grid" id="week-grid"></div>
+
+        <section class="week-panel habit-panel" id="habit-panel">
+          <div class="week-panel-head">
+            <h2>今週の習慣</h2>
+            <span class="week-panel-hint">マスをクリックで達成を記録（未来の日は記録できません）</span>
+            <a href="habits.html" class="btn btn-ghost" style="margin-left:auto;">習慣を管理</a>
+          </div>
+          <div id="habit-grid-wrap"></div>
+        </section>
+
+        <div class="week-lower">
+          <section class="week-panel" id="unassigned-panel">
+            <div class="week-panel-head">
+              <h2>未割り当てタスク</h2>
+              <span class="tag tag-neutral" id="unassigned-count">0件</span>
+              <span class="week-panel-hint">ドラッグで日付へ（押して選んでもOK）</span>
+              <button type="button" class="btn btn-primary" id="add-task-btn" style="margin-left:auto;">＋ タスクを追加</button>
+            </div>
+            <div class="unassigned-list" id="unassigned-list"></div>
+          </section>
+
+          <section class="week-panel" id="summary-panel">
+            <h2>今週のサマリー</h2>
+            <div class="summary-stats">
+              <div class="summary-stat"><div class="summary-stat-label">タスク完了</div><div class="summary-stat-value" id="sum-done">-</div></div>
+              <div class="summary-stat"><div class="summary-stat-label">予定の合計時間</div><div class="summary-stat-value" id="sum-hours">-</div></div>
+            </div>
+            <div class="summary-progress-head"><span>タスク完了率</span><span id="sum-rate">0%</span></div>
+            <div class="summary-progress"><div class="summary-progress-fill" id="sum-rate-bar"></div></div>
+            <div id="habit-summary" class="hidden">
+              <div class="summary-progress-head"><span>習慣達成率</span><span id="habit-rate">0%</span></div>
+              <div class="summary-progress"><div class="summary-progress-fill habit" id="habit-rate-bar"></div></div>
+              <div class="summary-habit-note" id="habit-note"></div>
+            </div>
+            <div class="summary-load-head"><span>日ごとの負荷</span><span id="sum-busiest"></span></div>
+            <div class="summary-load" id="sum-load"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="week.js"></script>
+</body>
+</html>

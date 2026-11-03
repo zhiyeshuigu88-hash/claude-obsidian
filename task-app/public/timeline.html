@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日間 | Focus Task</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#c67139" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="nav-root"></aside>
+    <main>
+      <div class="content" style="max-width:760px;">
+        <div class="header-row">
+          <h1>日間</h1>
+          <div class="seg">
+            <a href="timeline.html" class="seg-opt active">日</a>
+            <a href="week.html" class="seg-opt">週</a>
+          </div>
+        </div>
+        <p class="text-muted" style="font-size:13px;margin-bottom:16px;">
+          時間帯をクリック、またはドラッグで範囲選択してタスクの時間枠を作成できます。
+        </p>
+
+        <div class="timeline-date-nav">
+          <button type="button" class="btn btn-secondary" id="prev-day" title="前の日">←</button>
+          <div class="timeline-date-label" id="date-label"></div>
+          <button type="button" class="btn btn-secondary" id="next-day" title="次の日">→</button>
+          <button type="button" class="btn btn-ghost" id="today-btn">今日</button>
+        </div>
+
+        <section class="card day-tasks" id="day-tasks">
+          <div class="day-tasks-head">
+            <h2>この日のタスク</h2>
+            <span class="tag tag-neutral" id="day-tasks-count">0件</span>
+            <span class="day-tasks-hint">週間ビューで日付に入れたタスクもここに表示されます</span>
+          </div>
+          <div class="day-tasks-list" id="day-tasks-list"></div>
+        </section>
+
+        <section class="card day-tasks hidden" id="day-habits">
+          <div class="day-tasks-head">
+            <h2>この日の習慣</h2>
+            <span class="tag tag-accent-2" id="day-habits-count">0 / 0</span>
+            <span class="day-tasks-hint">やらなかった日は翌日に持ち越されません</span>
+          </div>
+          <div class="day-tasks-list" id="day-habits-list"></div>
+        </section>
+
+        <div class="card" style="padding:20px 24px;">
+          <div class="timeline-wrap" id="timeline-wrap">
+            <div class="timeline-rows" id="timeline-rows"></div>
+            <div class="timeline-blocks" id="timeline-blocks"></div>
+          </div>
+        </div>
+      </div>
+      <!-- 時間枠作成モーダル -->
+      <div id="create-form-wrap" class="dialog-backdrop hidden">
+        <form id="create-form" class="dialog">
+          <div class="dialog-title">時間枠を作成</div>
+          <div class="field"><label>時間帯</label><div id="range-label" style="font-size:14px;"></div></div>
+          <div class="field">
+            <label>タスク</label>
+            <select id="task-select" required>
+              <option value="">選択してください</option>
+            </select>
+          </div>
+          <div class="field"><label>予定ポモドーロ数</label><input type="number" id="planned-input" min="1" value="1" /></div>
+          <div class="dialog-actions">
+            <button type="button" class="btn btn-ghost" id="cancel-create">キャンセル</button>
+            <button type="submit" class="btn btn-primary">作成</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="timeline.js"></script>
+</body>
+</html>

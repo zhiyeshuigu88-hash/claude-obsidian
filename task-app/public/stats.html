@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>実績・統計 | Focus Task</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#c67139" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="nav-root"></aside>
+    <main>
+      <div class="content" style="max-width:680px;">
+        <h1>実績・統計</h1>
+
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-kicker">直近7日間</div>
+          <div id="weekly-summary" style="font-family:var(--font-heading);font-size:17px;">-</div>
+        </div>
+
+        <h2>日次ポモドーロ実施数</h2>
+        <div class="card">
+          <div class="stat-bar" id="stat-bar"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="stats.js"></script>
+</body>
+</html>

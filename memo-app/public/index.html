@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#2c2419">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Folio">
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="header-rule">
+        <p class="eyebrow">Board / Notes / Diary</p>
+        <h1>Folio</h1>
+      </div>
+    </header>
+
+    <main class="board-grid">
+      <section>
+        <div class="section-head">
+          <span class="accent-dot"></span>
+          <h2>掲示板</h2>
+        </div>
+        <form id="board-form" class="entry-form">
+          <textarea name="content" rows="3" placeholder="お知らせ・つぶやきを書く…" required></textarea>
+          <button type="submit" class="btn-primary">投稿</button>
+        </form>
+        <ul id="board-list" class="entry-list"></ul>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <span class="accent-ring"></span>
+          <h2>アイディア・気付きメモ</h2>
+        </div>
+        <form id="idea-form" class="entry-form">
+          <textarea name="content" rows="3" placeholder="アイデアや気付いたことを書く…" required></textarea>
+          <button type="submit" class="btn-secondary">追加</button>
+        </form>
+        <ul id="idea-list" class="entry-list"></ul>
+      </section>
+    </main>
+
+    <section class="diary-section">
+      <div class="section-head">
+        <span class="accent-square"></span>
+        <h2>日記</h2>
+      </div>
+
+      <div class="diary-editor">
+        <div class="diary-nav">
+          <button type="button" id="diary-prev" class="btn-nav" title="前の日">←</button>
+          <span id="diary-date-label" class="diary-date-label"></span>
+          <button type="button" id="diary-next" class="btn-nav" title="次の日">→</button>
+          <button type="button" id="diary-today" class="btn-nav diary-today">今日</button>
+          <span id="diary-status" class="diary-status"></span>
+        </div>
+        <textarea id="diary-textarea" rows="8" placeholder="今日あったこと、考えたことを書く…"></textarea>
+      </div>
+
+      <ul id="diary-list" class="entry-list diary-list"></ul>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "memo-app",
+  "version": "1.0.0",
+  "description": "掲示板とアイディア・気付きメモを分けて記録するローカルWebアプリ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
