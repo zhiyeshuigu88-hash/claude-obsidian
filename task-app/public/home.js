@@ -4,7 +4,7 @@ function scoped(root, name) {
 
 const params = new URLSearchParams(location.search);
 const state = {
-  status: params.get('status') || 'all',
+  status: params.get('status') || 'todo',
   sortBy: params.get('sortBy') || 'dueDate',
   tag: params.get('tag') || '',
 };
@@ -280,12 +280,57 @@ function durationForMode(m) {
   return (m === 'work' ? workMinutes : breakMinutes) * 60;
 }
 
+// タイマー動作中は画面のスリープを防ぐ（Screen Wake Lock API。非対応・非セキュア環境では何もしない）。
+let wakeLock = null;
+let wakeLockRequesting = false;
+
+function renderWakeNote() {
+  scoped(document, 'wake-note').forEach((el) => (el.hidden = !wakeLock));
+}
+
+async function syncWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  if (!timerIntervalId) {
+    if (wakeLock) {
+      const lock = wakeLock;
+      wakeLock = null;
+      renderWakeNote();
+      lock.release().catch(() => {});
+    }
+    return;
+  }
+  if (wakeLock || wakeLockRequesting || document.visibilityState !== 'visible') return;
+  wakeLockRequesting = true;
+  try {
+    const lock = await navigator.wakeLock.request('screen');
+    // 取得中にタイマーが止まっていたらすぐ解放する
+    if (!timerIntervalId) {
+      lock.release().catch(() => {});
+    } else {
+      wakeLock = lock;
+      lock.addEventListener('release', () => {
+        if (wakeLock === lock) wakeLock = null;
+        renderWakeNote();
+      });
+    }
+  } catch {
+    // 省電力モードなどで拒否された場合は黙って諦める
+  } finally {
+    wakeLockRequesting = false;
+    renderWakeNote();
+  }
+}
+
+// タブが隠れるとロックは自動で外れるので、戻ってきたときに取り直す。
+document.addEventListener('visibilitychange', syncWakeLock);
+
 function renderTimer() {
   scoped(document, 'time-display').forEach((el) => (el.textContent = formatTime(secondsLeft)));
   scoped(document, 'mode-label').forEach((el) => (el.textContent = timerMode === 'work' ? '作業中' : '休憩中'));
   scoped(document, 'start-btn').forEach((el) => (el.style.display = timerIntervalId ? 'none' : ''));
   scoped(document, 'pause-btn').forEach((el) => (el.style.display = timerIntervalId ? '' : 'none'));
   scoped(document, 'task-select').forEach((el) => (el.disabled = Boolean(timerIntervalId)));
+  syncWakeLock();
 }
 
 function linkedId(kind) {

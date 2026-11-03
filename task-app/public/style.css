@@ -310,6 +310,7 @@ textarea.input, textarea { min-height: 80px; padding: 10px 14px; border-radius: 
   font-size: 56px; text-align: center; margin: 8px 0;
   font-variant-numeric: tabular-nums; color: var(--color-accent-700);
 }
+.timer-note { margin-top: 12px; text-align: center; font-size: 11.5px; color: var(--color-accent-2-700); }
 .timer-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 
 .stack-8 { display: flex; flex-direction: column; gap: 8px; }
