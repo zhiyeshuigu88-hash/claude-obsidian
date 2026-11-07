@@ -1,0 +1,12 @@
+{
+  "name": "家計管理（フェーズ1）",
+  "short_name": "家計",
+  "description": "今日あといくら使えるかを一目で示す家計管理アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#0c8599",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

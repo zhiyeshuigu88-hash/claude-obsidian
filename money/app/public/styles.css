@@ -1,0 +1,323 @@
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --ink: #1a2027;
+  --muted: #6b757e;
+  --line: #e2e6ea;
+  --accent: #0c8599;
+  --accent-ink: #ffffff;
+  --danger: #e03131;
+  --ok: #2f9e44;
+  --radius: 16px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 8px 24px rgba(0, 0, 0, .06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171a;
+    --card: #1e2226;
+    --ink: #e8eaed;
+    --muted: #9aa4ad;
+    --line: #2c3237;
+    --shadow: 0 1px 3px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 16px 16px 120px;
+}
+
+.loading { color: var(--muted); text-align: center; padding: 64px 0; }
+
+/* ---- 期間セレクタ ---- */
+.period-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.period-bar button {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.period-bar button:disabled { opacity: .3; cursor: default; }
+.period-title { text-align: center; }
+.period-title strong { font-size: 17px; }
+.period-title span { display: block; font-size: 12px; color: var(--muted); }
+
+/* ---- ヒーロー: 今日つかえる額 ---- */
+.hero {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 20px 20px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.hero.over { background: linear-gradient(180deg, rgba(224,49,49,.10), var(--card) 60%); }
+.hero .caption { font-size: 13px; color: var(--muted); letter-spacing: .04em; }
+.hero.over .caption { color: var(--danger); font-weight: 700; }
+.hero .figure {
+  font-size: clamp(40px, 13vw, 60px);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin: 4px 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+.hero.over .figure { color: var(--danger); }
+.hero .sub { font-size: 13px; color: var(--muted); }
+
+.hero .meter {
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 16px 0 0;
+}
+.hero .meter > i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: inherit;
+}
+.hero .meter > i.warn { background: #f08c00; }
+.hero .meter > i.over { background: var(--danger); }
+
+/* ---- サマリーカード ---- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.stat {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+.stat .k { font-size: 12px; color: var(--muted); }
+.stat .v { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat.sub-line .v { font-size: 16px; }
+
+/* ---- セクション ---- */
+section { margin-bottom: 14px; }
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.section-head h2 { font-size: 14px; color: var(--muted); font-weight: 600; }
+.section-head .total { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.list { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+.list .empty { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+}
+.row:first-child { border-top: none; }
+.row .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.row .desc { flex: 1; min-width: 0; }
+.row .desc .name { font-size: 14px; }
+.row .desc .meta { font-size: 12px; color: var(--muted); }
+.row .amt { font-weight: 700; font-variant-numeric: tabular-nums; }
+.row .del {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.row .del:hover { color: var(--danger); }
+
+.breakdown .bar-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; }
+.breakdown .bar-row .label { width: 64px; flex: none; color: var(--muted); }
+.breakdown .bar-row .track { flex: 1; height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.breakdown .bar-row .track > i { display: block; height: 100%; border-radius: inherit; }
+.breakdown .bar-row .val { width: 76px; flex: none; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---- FAB ---- */
+.fab {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 30px;
+  line-height: 1;
+  box-shadow: 0 6px 20px rgba(12, 133, 153, .45);
+  cursor: pointer;
+  z-index: 5;
+}
+
+/* ---- ダイアログ ---- */
+dialog {
+  border: none;
+  border-radius: 20px 20px 0 0;
+  padding: 0;
+  width: 100%;
+  max-width: 520px;
+  margin: auto auto 0;
+  background: var(--card);
+  color: var(--ink);
+}
+dialog::backdrop { background: rgba(0, 0, 0, .4); }
+@media (min-width: 560px) {
+  dialog { border-radius: 20px; margin: auto; }
+}
+dialog form { padding: 16px 18px calc(20px + env(safe-area-inset-bottom)); }
+.dialog-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.dialog-head h2 { font-size: 17px; }
+.icon-btn { border: none; background: none; font-size: 18px; color: var(--muted); cursor: pointer; }
+
+.field { display: block; margin-bottom: 14px; }
+.field > span, .field > legend { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.field em { font-style: normal; font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+.field input {
+  width: 100%;
+  font: inherit;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.amount-input { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding-left: 12px; }
+.amount-input .yen { color: var(--muted); font-size: 18px; }
+.amount-input input { border: none; background: none; font-size: 24px; font-weight: 700; padding: 10px 12px; }
+.amount-field .amount-input input { text-align: right; }
+
+.quick-amounts { display: flex; flex-wrap: wrap; gap: 6px; margin: -6px 0 14px; }
+.quick-amounts button {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.chips button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+.dialog-foot { margin-top: 4px; }
+.primary {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: inherit;
+  font-weight: 700;
+  padding: 13px;
+  cursor: pointer;
+}
+.primary:disabled { opacity: .5; cursor: default; }
+
+.note { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.form-error { color: var(--danger); font-size: 13px; margin-bottom: 10px; }
+
+.settings-link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.settings-link.inline { display: inline; width: auto; padding: 0 0 0 6px; }
+.account-line { text-align: center; font-size: 12px; color: var(--muted); }
+
+.auth-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 20px 24px;
+  margin-top: 8vh;
+}
+.auth-card h1 { font-size: 20px; margin-bottom: 8px; }
+.auth-card .note { margin-bottom: 18px; }
+
+.budget-hint {
+  background: var(--card);
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 14px;
+}
+.budget-hint button {
+  display: inline-block;
+  margin-top: 8px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+  z-index: 10;
+}
+.toast.show { opacity: .95; }

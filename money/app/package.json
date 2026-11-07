@@ -1,0 +1,12 @@
+{
+  "name": "kakei-app-phase1",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "家計管理アプリ 要件定義書 v0.2 フェーズ1（変動費入力 + 日間/期間合計 + ホーム画面）",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  }
+}
