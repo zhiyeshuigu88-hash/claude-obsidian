@@ -16,101 +16,70 @@ const NAV_ITEMS = [
   { href: 'settings.html', label: '設定', icon: 'settings' },
 ];
 
-const NAV_PIN_KEY = 'taskapp.navPinned';
+const ICON_SUN =
+  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>';
+const ICON_MOON =
+  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>';
 
-function isNavPinned() {
-  try {
-    return localStorage.getItem(NAV_PIN_KEY) === '1';
-  } catch (e) {
-    return false;
-  }
+function railLink(item, current) {
+  const active = item.href === current;
+  return `<a href="${item.href}" class="rail-link ${active ? 'active' : ''}" title="${item.label}" aria-label="${item.label}"${active ? ' aria-current="page"' : ''}>${NAV_ICONS[item.icon]}<span class="rail-tip">${item.label}</span></a>`;
 }
 
-function applyNavPinned(pinned) {
-  document.body.classList.toggle('nav-pinned', pinned);
-  if (pinned) document.body.classList.remove('nav-open');
-}
-
-applyNavPinned(isNavPinned());
-
-function setupNavToggle() {
-  if (document.querySelector('.nav-toggle')) return;
-
-  const toggle = document.createElement('button');
-  toggle.type = 'button';
-  toggle.className = 'nav-toggle';
-  toggle.setAttribute('aria-label', 'メニューを開く');
-  toggle.setAttribute('aria-controls', 'nav-root');
-  toggle.setAttribute('aria-expanded', 'false');
-  toggle.innerHTML = `
-    <svg class="icon-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
-    <svg class="icon-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>
+// 左のアイコンレール（PC 専用）
+function renderRail() {
+  const root = document.getElementById('nav-root');
+  const current = location.pathname.split('/').pop() || 'index.html';
+  const settings = NAV_ITEMS.find((i) => i.icon === 'settings');
+  root.innerHTML = `
+    <nav class="rail-group" aria-label="メインメニュー">${NAV_ITEMS.filter((i) => i !== settings)
+      .map((i) => railLink(i, current))
+      .join('')}</nav>
+    <nav class="rail-group" aria-label="設定">${railLink(settings, current)}</nav>
   `;
+}
 
-  const backdrop = document.createElement('div');
-  backdrop.className = 'nav-backdrop';
+// 上のバー: ブランド・今日の日付とポモドーロ数・テーマ切り替え・タスク追加
+function renderTopbar() {
+  if (document.getElementById('topbar')) return;
+  const now = new Date();
+  const dateText = `${now.getMonth() + 1}月${now.getDate()}日（${['日', '月', '火', '水', '木', '金', '土'][now.getDay()]}）`;
 
-  function setOpen(open) {
-    document.body.classList.toggle('nav-open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
-  }
+  const bar = document.createElement('header');
+  bar.id = 'topbar';
+  bar.className = 'topbar';
+  bar.innerHTML = `
+    <a class="topbar-brand" href="index.html"><span class="topbar-logo">f</span>Focus Task</a>
+    <div class="topbar-right">
+      <span class="topbar-chip">${dateText}</span>
+      <span class="topbar-chip" id="topbar-pomo" title="今日のポモドーロ数">🍅 <b id="sidebar-today-count">-</b></span>
+      <button type="button" class="icon-btn" id="theme-quick" aria-label="ライト / ダークを切り替え"></button>
+      <button type="button" class="btn-orange" id="topbar-new">＋ タスク追加</button>
+    </div>
+  `;
+  document.body.prepend(bar);
 
-  toggle.addEventListener('click', () => setOpen(!document.body.classList.contains('nav-open')));
-  backdrop.addEventListener('click', () => setOpen(false));
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.body.classList.contains('nav-open')) setOpen(false);
+  const themeBtn = document.getElementById('theme-quick');
+  const syncThemeBtn = () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    themeBtn.innerHTML = dark ? ICON_SUN : ICON_MOON;
+    themeBtn.title = dark ? 'ライトにする' : 'ダークにする';
+  };
+  themeBtn.addEventListener('click', () => setThemePref(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+  document.addEventListener('taskapp:themechange', syncThemeBtn);
+  syncThemeBtn();
+
+  // 追加ボタン: Home ならそのままモーダルを開き、他のページでは Home へ移動して開く
+  document.getElementById('topbar-new').addEventListener('click', () => {
+    if (typeof window.onNewTask === 'function') window.onNewTask();
+    else location.href = 'index.html?new=1';
   });
-
-  document.body.append(backdrop, toggle);
 }
 
 async function renderNav() {
-  const current = location.pathname.split('/').pop() || 'index.html';
-  const root = document.getElementById('nav-root');
-  if (!root) return;
-
-  setupNavToggle();
-
-  root.innerHTML = `
-    <div class="sidebar-brand">
-      <div class="logo">f</div>
-      <div class="name">Focus Task</div>
-      <button type="button" class="nav-pin" id="nav-pin" aria-pressed="false" title="メニューを常に開く" aria-label="メニューを常に開く">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
-      </button>
-    </div>
-    <nav class="sidebar-nav">
-      ${NAV_ITEMS.map(
-        (item) =>
-          `<a href="${item.href}" class="${item.href === current ? 'active' : ''}">${NAV_ICONS[item.icon]}${item.label}</a>`
-      ).join('')}
-    </nav>
-    <div class="sidebar-today">
-      <div class="label">本日</div>
-      <div class="value"><span id="sidebar-today-count">-</span> <span>ポモドーロ</span></div>
-    </div>
-  `;
-
-  const pinBtn = document.getElementById('nav-pin');
-  function syncPinButton() {
-    const pinned = document.body.classList.contains('nav-pinned');
-    pinBtn.setAttribute('aria-pressed', String(pinned));
-    const label = pinned ? 'メニューの固定を解除' : 'メニューを常に開く';
-    pinBtn.title = label;
-    pinBtn.setAttribute('aria-label', label);
-  }
-  pinBtn.addEventListener('click', () => {
-    const pinned = !document.body.classList.contains('nav-pinned');
-    try {
-      localStorage.setItem(NAV_PIN_KEY, pinned ? '1' : '0');
-    } catch (e) {
-      // storage unavailable — pin only lasts for this page view
-    }
-    applyNavPinned(pinned);
-    syncPinButton();
-  });
-  syncPinButton();
+  if (!document.getElementById('nav-root')) return;
+  renderRail();
+  renderTopbar();
 
   try {
     const { count } = await apiGet('/api/pomodoro/today-count');
@@ -263,4 +232,45 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
+}
+
+// --- テーマ（ライト / ダーク / システム設定に合わせる） ---
+// 初回描画のちらつきを避けるため、起動時の適用は各ページの <head> のインラインスクリプトでも行っている。
+
+const THEME_KEY = 'taskapp.theme';
+const THEME_MEDIA = window.matchMedia('(prefers-color-scheme: dark)');
+
+function getThemePref() {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    return v === 'dark' || v === 'system' ? v : 'light';
+  } catch {
+    return 'light';
+  }
+}
+
+function applyTheme(pref) {
+  const dark = pref === 'dark' || (pref === 'system' && THEME_MEDIA.matches);
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+}
+
+function setThemePref(pref) {
+  try {
+    localStorage.setItem(THEME_KEY, pref);
+  } catch {
+    // 保存できない環境でも、この画面では切り替わる
+  }
+  applyTheme(pref);
+  document.dispatchEvent(new Event('taskapp:themechange'));
+}
+
+THEME_MEDIA.addEventListener('change', () => applyTheme(getThemePref()));
+// 別のタブで変更されたときも追従する
+window.addEventListener('storage', (e) => {
+  if (e.key === THEME_KEY) applyTheme(getThemePref());
+});
+
+// data-el 属性でページ内の要素を探す（PC / スマホ共通）
+function scoped(root, name) {
+  return Array.from(root.querySelectorAll(`[data-el="${name}"]`));
 }

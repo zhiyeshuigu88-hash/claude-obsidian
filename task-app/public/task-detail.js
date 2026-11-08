@@ -9,7 +9,7 @@ async function toggleTaskStatus(id, currentStatus) {
 
 async function deleteTask(id) {
   await apiDelete(`/api/tasks/${id}`);
-  location.href = 'index.html';
+  location.href = document.body.dataset.home || 'index.html';
 }
 
 function renderSubtasks(subtasks) {

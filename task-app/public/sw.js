@@ -1,6 +1,6 @@
 // アプリ本体（HTML/CSS/JS/アイコン）だけをキャッシュする。データは常に最新を取りたいので /api は触らない。
 // 取得はネットワーク優先で、オフラインのときだけキャッシュを使う（コード更新がすぐ反映される）。
-const CACHE = 'taskapp-shell-v1';
+const CACHE = 'taskapp-shell-v3';
 const SHELL = [
   '/index.html',
   '/habits.html',
@@ -18,6 +18,20 @@ const SHELL = [
   '/stats.js',
   '/settings.js',
   '/task-detail.js',
+  '/timer.js',
+  '/m.css',
+  '/pc.css',
+  '/m-common.js',
+  '/m-home.js',
+  '/m-tasks.js',
+  '/m-schedule.js',
+  '/m-stats.js',
+  '/m/index.html',
+  '/m/tasks.html',
+  '/m/schedule.html',
+  '/m/habits.html',
+  '/m/more.html',
+  '/m/task.html',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -52,7 +66,7 @@ self.addEventListener('fetch', (event) => {
         return res;
       })
       .catch(() =>
-        caches.match(req, { ignoreSearch: true }).then((hit) => hit || (req.mode === 'navigate' ? caches.match('/index.html') : Response.error()))
+        caches.match(req, { ignoreSearch: true }).then((hit) => hit || (req.mode === 'navigate' ? caches.match(url.pathname.startsWith('/m/') ? '/m/index.html' : '/index.html') : Response.error()))
       )
   );
 });

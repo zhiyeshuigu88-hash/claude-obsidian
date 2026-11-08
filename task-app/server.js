@@ -9,6 +9,45 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 app.use(express.json());
+
+// --- PC / スマホで画面を出し分ける ---
+// スマホ（iPhone・Android の携帯）が PC 版のページを開いたら /m/ のスマホ版へ送る。
+// ?ui=pc で PC 版に固定、?ui=m でスマホ版に固定、?ui=auto で端末に合わせる（Cookie に記憶）。
+const MOBILE_UA = /Android.+Mobile|iPhone|iPod|Windows Phone/i;
+const MOBILE_PAGE_OF = {
+  '/': 'index.html',
+  '/index.html': 'index.html',
+  '/week.html': 'schedule.html',
+  '/timeline.html': 'schedule.html',
+  '/habits.html': 'habits.html',
+  '/stats.html': 'more.html',
+  '/settings.html': 'more.html',
+  '/task.html': 'task.html',
+};
+const UI_COOKIE = 'taskapp_ui';
+
+function readCookie(req, name) {
+  const match = (req.headers.cookie || '').split(';').map((s) => s.trim()).find((s) => s.startsWith(name + '='));
+  return match ? decodeURIComponent(match.slice(name.length + 1)) : '';
+}
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  const ui = req.query.ui;
+  if (ui === 'pc' || ui === 'm') res.cookie(UI_COOKIE, ui, { maxAge: 365 * 24 * 3600 * 1000, sameSite: 'lax', httpOnly: true });
+  else if (ui === 'auto') res.clearCookie(UI_COOKIE);
+
+  const pref = ui === 'pc' || ui === 'm' ? ui : ui === 'auto' ? 'auto' : readCookie(req, UI_COOKIE);
+  const target = MOBILE_PAGE_OF[req.path];
+  const wantMobile = pref === 'm' || (pref !== 'pc' && MOBILE_UA.test(req.headers['user-agent'] || ''));
+  if (!target || !wantMobile) return next();
+
+  const query = new URLSearchParams(req.query);
+  query.delete('ui');
+  const qs = query.toString();
+  res.redirect(`/m/${target}${qs ? '?' + qs : ''}`);
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 function pad(n) {
@@ -70,6 +109,11 @@ app.get('/api/pomodoro/today-count', (req, res) => {
 app.get('/api/pomodoro/stats', (req, res) => {
   const days = Number(req.query.days) || 7;
   res.json(pomodoroStore.summarizeStats(days));
+});
+
+app.get('/api/pomodoro/breakdown', (req, res) => {
+  const days = Number(req.query.days) || 7;
+  res.json(pomodoroStore.summarizeBreakdown(days));
 });
 
 app.post('/api/pomodoro/sessions', (req, res) => {

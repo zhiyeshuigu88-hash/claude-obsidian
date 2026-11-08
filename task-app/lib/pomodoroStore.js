@@ -88,7 +88,21 @@ function summarizeStats(days) {
   return { daily, weekly };
 }
 
+// 直近 days 日の時間の内訳（秒）。作業はタスク / 習慣 / 紐付けなしに分け、休憩は別にする。
+function summarizeBreakdown(days) {
+  const parts = { task: 0, habit: 0, free: 0, break: 0 };
+  for (const s of listRecentSessions(days)) {
+    const sec = s.duration || 0;
+    if (s.type === 'break') parts.break += sec;
+    else if (s.habitId) parts.habit += sec;
+    else if (s.taskId) parts.task += sec;
+    else parts.free += sec;
+  }
+  return { totalSeconds: parts.task + parts.habit + parts.free + parts.break, parts };
+}
+
 module.exports = {
+  summarizeBreakdown,
   recordSession,
   listRecentSessions,
   listSessionsForTaskInRange,

@@ -1,7 +1,3 @@
-function scoped(root, name) {
-  return Array.from(root.querySelectorAll(`[data-el="${name}"]`));
-}
-
 const params = new URLSearchParams(location.search);
 const state = {
   status: params.get('status') || 'todo',
@@ -52,21 +48,44 @@ function bindToggleAndDelete(container) {
   });
 }
 
+// ヒーローの「今日の進み具合」用
+const heroState = { tasks: 0, tasksDone: 0, habits: 0, habitsDone: 0 };
+
+function updateHero() {
+  const el = document.getElementById('hero-sub');
+  if (!el) return;
+  const { tasks, tasksDone, habits, habitsDone } = heroState;
+  el.textContent =
+    tasks + habits === 0
+      ? '今日の予定はまだありません。'
+      : `今日のタスク ${tasksDone} / ${tasks} 完了 ・ 習慣 ${habitsDone} / ${habits} 達成`;
+}
+
+function priorityPill(priority) {
+  return `<span class="pri pri-${priority}">${PRIORITY_LABEL[priority] || priority}</span>`;
+}
+
 function renderDueToday(tasks) {
+  const top = tasks.filter((t) => !t.parentTaskId);
+  heroState.tasks = top.length;
+  heroState.tasksDone = top.filter((t) => t.status === 'done').length;
+  updateHero();
+
   const html =
-    tasks.length === 0
-      ? '<p class="text-muted" style="font-size:13px;">本日期限のタスクはありません。</p>'
-      : tasks
+    top.length === 0
+      ? '<p class="sub tt-empty">今日が期限のタスクはありません。</p>'
+      : top
           .map(
             (t) => `
-    <div class="card" data-id="${t.id}">
-      <div class="task-item">
+    <div class="tt-row ${t.status === 'done' ? 'done' : ''}" data-id="${t.id}">
+      <label class="tt-task">
         <input type="checkbox" class="toggle" data-id="${t.id}" data-status="${t.status}" ${t.status === 'done' ? 'checked' : ''} />
-        <a class="title ${t.status === 'done' ? 'done' : ''}" href="task.html?id=${t.id}">${escapeHtml(t.title)}</a>
-        <span class="tag ${PRIORITY_TAG_CLASS[t.priority] || 'tag-neutral'}">${PRIORITY_LABEL[t.priority] || t.priority}</span>
-      </div>
-    </div>
-  `
+        <a href="task.html?id=${t.id}" title="${escapeHtml(t.title)}">${escapeHtml(t.title)}</a>
+      </label>
+      ${priorityPill(t.priority)}
+      <span class="tt-status">${t.status === 'done' ? '完了' : '未完了'}</span>
+      <span class="tt-est">${t.estimateMinutes ? t.estimateMinutes + '分' : '–'}</span>
+    </div>`
           )
           .join('');
 
@@ -82,7 +101,7 @@ function taskCardHtml(t) {
       <div class="task-item">
         <input type="checkbox" class="toggle" data-id="${t.id}" data-status="${t.status}" ${t.status === 'done' ? 'checked' : ''} />
         <a class="title ${t.status === 'done' ? 'done' : ''}" href="task.html?id=${t.id}">${escapeHtml(t.title)}</a>
-        <span class="tag ${PRIORITY_TAG_CLASS[t.priority] || 'tag-neutral'}">${PRIORITY_LABEL[t.priority] || t.priority}</span>
+        ${priorityPill(t.priority)}
       </div>
       ${t.dueDate ? `<div class="card-meta">期限: ${formatDateTime(t.dueDate)}</div>` : ''}
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0;">
@@ -204,6 +223,9 @@ const habitCountEl = scoped(document, 'habit-count')[0];
 function renderHabits(habits) {
   const todays = habits.filter((h) => h.scheduled);
   habitCountEl.textContent = `${todays.filter((h) => h.done).length} / ${todays.length}`;
+  heroState.habits = todays.length;
+  heroState.habitsDone = todays.filter((h) => h.done).length;
+  updateHero();
 
   if (habits.length === 0) {
     habitListEl.innerHTML =
@@ -249,187 +271,146 @@ habitListEl.addEventListener('click', async (e) => {
 
 loadHabits();
 
-// --- Pomodoro timer ---
-
-const DEFAULT_WORK_MINUTES = 25;
-const DEFAULT_BREAK_MINUTES = 5;
-
-function loadMinutes(key, fallback) {
-  const stored = window.localStorage.getItem(key);
-  const n = Number(stored);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
-}
-
-function formatTime(totalSeconds) {
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
-const workMinutes = loadMinutes('taskapp.workMinutes', DEFAULT_WORK_MINUTES);
-const breakMinutes = loadMinutes('taskapp.breakMinutes', DEFAULT_BREAK_MINUTES);
-
-let timerMode = 'work';
-let secondsLeft = workMinutes * 60;
-let timerIntervalId = null;
-let timerStartedAt = null;
-// 紐付け先。値は 'task:<id>' または 'habit:<id>'（未選択は ''）。
-let selectedTarget = '';
-
-function durationForMode(m) {
-  return (m === 'work' ? workMinutes : breakMinutes) * 60;
-}
-
-// タイマー動作中は画面のスリープを防ぐ（Screen Wake Lock API。非対応・非セキュア環境では何もしない）。
-let wakeLock = null;
-let wakeLockRequesting = false;
-
-function renderWakeNote() {
-  scoped(document, 'wake-note').forEach((el) => (el.hidden = !wakeLock));
-}
-
-async function syncWakeLock() {
-  if (!('wakeLock' in navigator)) return;
-  if (!timerIntervalId) {
-    if (wakeLock) {
-      const lock = wakeLock;
-      wakeLock = null;
-      renderWakeNote();
-      lock.release().catch(() => {});
-    }
-    return;
-  }
-  if (wakeLock || wakeLockRequesting || document.visibilityState !== 'visible') return;
-  wakeLockRequesting = true;
-  try {
-    const lock = await navigator.wakeLock.request('screen');
-    // 取得中にタイマーが止まっていたらすぐ解放する
-    if (!timerIntervalId) {
-      lock.release().catch(() => {});
-    } else {
-      wakeLock = lock;
-      lock.addEventListener('release', () => {
-        if (wakeLock === lock) wakeLock = null;
-        renderWakeNote();
-      });
-    }
-  } catch {
-    // 省電力モードなどで拒否された場合は黙って諦める
-  } finally {
-    wakeLockRequesting = false;
-    renderWakeNote();
-  }
-}
-
-// タブが隠れるとロックは自動で外れるので、戻ってきたときに取り直す。
-document.addEventListener('visibilitychange', syncWakeLock);
-
-function renderTimer() {
-  scoped(document, 'time-display').forEach((el) => (el.textContent = formatTime(secondsLeft)));
-  scoped(document, 'mode-label').forEach((el) => (el.textContent = timerMode === 'work' ? '作業中' : '休憩中'));
-  scoped(document, 'start-btn').forEach((el) => (el.style.display = timerIntervalId ? 'none' : ''));
-  scoped(document, 'pause-btn').forEach((el) => (el.style.display = timerIntervalId ? '' : 'none'));
-  scoped(document, 'task-select').forEach((el) => (el.disabled = Boolean(timerIntervalId)));
-  syncWakeLock();
-}
-
-function linkedId(kind) {
-  if (timerMode !== 'work' || !selectedTarget.startsWith(kind + ':')) return null;
-  return selectedTarget.slice(kind.length + 1);
-}
-
-async function handleTimerComplete() {
-  clearInterval(timerIntervalId);
-  timerIntervalId = null;
-
-  const endTime = new Date();
-  const startTime = timerStartedAt || endTime;
-  const duration = Math.round((endTime - startTime) / 1000);
-
-  try {
-    await apiSend('POST', '/api/pomodoro/sessions', {
-      taskId: linkedId('task'),
-      habitId: linkedId('habit'),
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
-      duration,
-      type: timerMode,
-    });
-  } catch (e) {
-    console.error(e);
-  }
-
-  timerMode = timerMode === 'work' ? 'break' : 'work';
-  secondsLeft = durationForMode(timerMode);
-  timerStartedAt = null;
-  renderTimer();
+// タイマーが完了したら、今日のポモドーロ数などを更新する（timer.js から呼ばれる）
+function onPomodoroComplete() {
   loadAll();
+  loadAnalytics();
+  loadTimerStats();
+  loadSchedule();
 }
 
-function tick() {
-  secondsLeft -= 1;
-  if (secondsLeft <= 0) {
-    secondsLeft = 0;
-    renderTimer();
-    handleTimerComplete();
+// --- 時間の内訳（直近7日） ---
+
+const AN_PARTS = [
+  { key: 'task', label: 'タスク', cls: 'an-task' },
+  { key: 'habit', label: '習慣', cls: 'an-habit' },
+  { key: 'free', label: '紐付けなし', cls: 'an-free' },
+  { key: 'break', label: '休憩', cls: 'an-break' },
+];
+
+function formatHm(seconds) {
+  const m = Math.round(seconds / 60);
+  return `${Math.floor(m / 60)}h ${m % 60}m`;
+}
+
+async function loadAnalytics() {
+  const { totalSeconds, parts } = await apiGet('/api/pomodoro/breakdown?days=7');
+  document.getElementById('an-total').textContent = formatHm(totalSeconds);
+  const bars = document.getElementById('an-bars');
+  if (totalSeconds === 0) {
+    bars.innerHTML = '<p class="sub an-empty">まだ記録がありません。タイマーを使うと、ここに内訳が出ます。</p>';
     return;
   }
-  renderTimer();
+  bars.innerHTML = AN_PARTS.filter((p) => parts[p.key] > 0)
+    .map((p) => {
+      const pct = Math.round((parts[p.key] / totalSeconds) * 100);
+      // 割合が小さくても文字が収まる幅を確保する
+      const grow = Math.max(parts[p.key], totalSeconds * 0.12);
+      return `<div class="an-seg" style="flex:${grow} 1 0"><span class="an-label">${p.label}</span><div class="an-bar ${p.cls}">${pct}%</div></div>`;
+    })
+    .join('');
 }
 
-function handleTimerStart() {
-  if (!timerIntervalId) {
-    timerStartedAt = new Date(Date.now() - (durationForMode(timerMode) - secondsLeft) * 1000);
-    timerIntervalId = setInterval(tick, 1000);
+// --- 今日のスケジュール（横向きのタイムライン） ---
+
+const HS_START = 6;
+const HS_END = 24;
+const HS_HOUR_W = 88;
+const HS_LANE_H = 54;
+let scheduleScrolled = false;
+
+function clockToMinutes(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+async function loadSchedule() {
+  const today = habitTodayKey();
+  const [boxes, tasks, habits] = await Promise.all([
+    apiGet(`/api/timeboxes?date=${today}`),
+    apiGet('/api/tasks'),
+    apiGet(`/api/habits?date=${today}`),
+  ]);
+  const titleOf = Object.fromEntries(tasks.map((t) => [t.id, t.title]));
+
+  const items = [];
+  for (const b of boxes) {
+    const s = new Date(b.startTime);
+    const e = new Date(b.endTime);
+    const start = s.getHours() * 60 + s.getMinutes();
+    let end = e.getHours() * 60 + e.getMinutes();
+    if (end <= start) end = 24 * 60; // 翌日 0:00 は 24:00 扱い
+    items.push({ kind: 'box', start, end, title: titleOf[b.taskId] || '（削除されたタスク）', meta: `ポモドーロ ${b.consumedPomodoros || 0} / ${b.plannedPomodoros}` });
   }
-  renderTimer();
+  for (const h of habits) {
+    if (h.scheduled && h.startTime && h.endTime) {
+      items.push({ kind: 'habit', start: clockToMinutes(h.startTime), end: clockToMinutes(h.endTime), title: h.title, meta: h.done ? '習慣 ・ 達成' : '習慣', done: h.done });
+    }
+  }
+  items.sort((a, b) => a.start - b.start);
+
+  // 重なる予定は段を分ける
+  const laneEnds = [];
+  for (const it of items) {
+    let lane = laneEnds.findIndex((end) => end <= it.start);
+    if (lane < 0) lane = laneEnds.length;
+    laneEnds[lane] = it.end;
+    it.lane = lane;
+  }
+
+  const lanes = Math.max(1, laneEnds.length);
+  const width = (HS_END - HS_START) * HS_HOUR_W;
+  const x = (minutes) => Math.min(Math.max((minutes / 60 - HS_START) * HS_HOUR_W, 0), width);
+
+  const hours = Array.from({ length: HS_END - HS_START }, (_, i) => `<span class="hs-hour" style="left:${i * HS_HOUR_W + 8}px">${HS_START + i}:00</span>`).join('');
+  const blocks = items
+    .filter((it) => it.end > HS_START * 60)
+    .map((it) => {
+      const left = x(it.start);
+      const w = Math.max(x(it.end) - left - 6, 60);
+      return `<div class="hs-item ${it.kind} ${it.done ? 'done' : ''}" style="left:${left}px;width:${w}px;top:${40 + it.lane * HS_LANE_H}px" title="${escapeHtml(it.title)}">
+        <span class="hs-title">${escapeHtml(it.title)}</span><small>${Math.floor(it.start / 60)}:${String(it.start % 60).padStart(2, '0')}–${Math.floor(it.end / 60)}:${String(it.end % 60).padStart(2, '0')} ・ ${it.meta}</small>
+      </div>`;
+    })
+    .join('');
+
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const nowLeft = x(nowMin);
+  const nowLine = nowMin >= HS_START * 60 ? `<div class="hs-now" style="left:${nowLeft}px"></div>` : '';
+
+  const hs = document.getElementById('hs');
+  hs.style.width = width + 'px';
+  hs.style.minHeight = 40 + lanes * HS_LANE_H + 8 + 'px';
+  hs.style.setProperty('--hour-w', HS_HOUR_W + 'px');
+  hs.innerHTML =
+    '<div class="hs-grid"></div>' +
+    hours +
+    blocks +
+    nowLine +
+    (items.length === 0 ? '<p class="hs-empty">今日の時間枠はありません。<a href="timeline.html">日間ビューで追加</a>できます。</p>' : '');
+
+  if (!scheduleScrolled) {
+    scheduleScrolled = true;
+    document.getElementById('hs-scroll').scrollLeft = Math.max(0, nowLeft - 140);
+  }
 }
 
-function handleTimerPause() {
-  clearInterval(timerIntervalId);
-  timerIntervalId = null;
-  renderTimer();
+// タイマーカードの下: 今日と直近7日のポモドーロ回数
+async function loadTimerStats() {
+  const [today, stats] = await Promise.all([apiGet('/api/pomodoro/today-count'), apiGet('/api/pomodoro/stats?days=7')]);
+  document.getElementById('ts-today').textContent = today.count;
+  document.getElementById('ts-week').textContent = stats.weekly.count;
 }
 
-function handleTimerSkip() {
-  clearInterval(timerIntervalId);
-  timerIntervalId = null;
-  timerMode = timerMode === 'work' ? 'break' : 'work';
-  secondsLeft = durationForMode(timerMode);
-  timerStartedAt = null;
-  renderTimer();
+loadAnalytics();
+loadTimerStats();
+loadSchedule();
+setInterval(loadSchedule, 60000); // 現在時刻の線を進める
+
+// 上のバーの「＋ タスク追加」から、またはほかのページから ?new=1 で開かれたときにモーダルを開く
+window.onNewTask = openCreateModal;
+if (params.get('new')) {
+  history.replaceState(null, '', location.pathname);
+  openCreateModal();
 }
-
-function handleTimerReset() {
-  clearInterval(timerIntervalId);
-  timerIntervalId = null;
-  secondsLeft = durationForMode(timerMode);
-  timerStartedAt = null;
-  renderTimer();
-}
-
-scoped(document, 'start-btn').forEach((el) => el.addEventListener('click', handleTimerStart));
-scoped(document, 'pause-btn').forEach((el) => el.addEventListener('click', handleTimerPause));
-scoped(document, 'skip-btn').forEach((el) => el.addEventListener('click', handleTimerSkip));
-scoped(document, 'reset-btn').forEach((el) => el.addEventListener('click', handleTimerReset));
-scoped(document, 'task-select').forEach((el) => {
-  el.addEventListener('change', () => {
-    selectedTarget = el.value;
-  });
-});
-
-async function loadTimerTaskOptions() {
-  const [tasks, habits] = await Promise.all([apiGet('/api/tasks?status=todo'), apiGet('/api/habits')]);
-  const option = (kind, item) => `<option value="${kind}:${item.id}">${escapeHtml(item.title)}</option>`;
-  const group = (label, kind, items) =>
-    items.length ? `<optgroup label="${label}">${items.map((i) => option(kind, i)).join('')}</optgroup>` : '';
-  const optionsHtml = '<option value="">（選択なし）</option>' + group('タスク', 'task', tasks) + group('習慣', 'habit', habits);
-  scoped(document, 'task-select').forEach((el) => {
-    el.innerHTML = optionsHtml;
-    el.value = selectedTarget;
-    selectedTarget = el.value; // 消えた項目を指していたら未選択に戻す
-  });
-}
-
-loadTimerTaskOptions();
-renderTimer();

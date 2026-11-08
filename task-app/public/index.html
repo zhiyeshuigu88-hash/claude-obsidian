@@ -4,9 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Focus Task</title>
+  <script>
+    try {
+      var t = localStorage.getItem('taskapp.theme');
+      if (t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pc.css" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="theme-color" content="#c67139" />
+  <meta name="theme-color" content="#b96945" />
   <link rel="icon" type="image/png" href="/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -17,59 +26,117 @@
   <div class="app-shell">
     <aside class="sidebar" id="nav-root"></aside>
     <main>
-      <div class="content">
-        <h1>Home</h1>
+      <div class="content dash">
+        <div class="dash-main">
+          <!-- ヒーロー -->
+          <section class="hero">
+            <div class="hero-art" aria-hidden="true"><i></i><i></i><i></i></div>
+            <h1 class="hero-title">Focus<br />on today</h1>
+            <p class="hero-sub" id="hero-sub">&nbsp;</p>
+          </section>
 
-        <div style="display:flex;flex-direction:column;gap:20px;">
-          <div>
-            <h2>ポモドーロタイマー</h2>
-            <div class="card">
-              <div class="timer-mode" data-el="mode-label">作業中</div>
-              <div class="timer-display" data-el="time-display">25:00</div>
-              <div class="field">
-                <label>紐付けるタスク・習慣</label>
-                <select data-el="task-select">
-                  <option value="">（選択なし）</option>
-                </select>
-              </div>
-              <div class="timer-controls">
-                <button data-el="start-btn" class="btn btn-primary">開始</button>
-                <button class="btn btn-secondary" data-el="pause-btn" style="display:none;">一時停止</button>
-                <button class="btn btn-secondary" data-el="skip-btn">スキップ</button>
-                <button class="btn btn-ghost" data-el="reset-btn">リセット</button>
-              </div>
-              <div class="timer-note" data-el="wake-note" hidden>画面をスリープさせません</div>
+          <!-- 時間の内訳 -->
+          <section class="glass analytics">
+            <div class="an-total">
+              <span>直近7日間のポモドーロ時間</span>
+              <b id="an-total">0h 0m</b>
             </div>
-          </div>
+            <div class="an-bars" id="an-bars"></div>
+          </section>
 
-          <div>
-            <h2>本日期限のタスク</h2>
-            <div data-el="due-today-list" class="stack-8"></div>
-          </div>
-
-          <div>
-            <div class="header-row" style="margin-bottom:10px;">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <h2>今日の習慣</h2>
-                <span class="tag tag-accent-2" data-el="habit-count">0 / 0</span>
+          <div class="dash-row">
+            <!-- 今日のスケジュール -->
+            <section class="glass schedule-card">
+              <div class="card-head">
+                <div>
+                  <h2>今日のスケジュール</h2>
+                  <p class="sub">時間枠と、時間つきの習慣</p>
+                </div>
+                <a href="timeline.html" class="arrow-btn" title="日間ビューを開く" aria-label="日間ビューを開く">↗</a>
               </div>
-              <a href="habits.html" class="btn btn-ghost">管理</a>
-            </div>
-            <div data-el="habit-list" class="stack-8"></div>
-          </div>
+              <div class="hs-scroll" id="hs-scroll"><div class="hs" id="hs"></div></div>
+            </section>
 
-          <div>
-            <div class="header-row" style="margin-bottom:10px;">
-              <h2>タスク一覧</h2>
-              <button type="button" class="btn btn-icon btn-primary fab" data-el="add-toggle-btn" title="新規タスク作成" aria-label="新規タスク作成">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              </button>
-            </div>
-            <div class="filters" data-el="filters"></div>
-            <div data-el="task-list" class="stack-10"></div>
+            <!-- 今日の習慣 -->
+            <section class="orange-card habits-card">
+              <div class="card-head">
+                <div>
+                  <h2>今日の習慣</h2>
+                  <p class="sub">チェックで今日の分を記録</p>
+                </div>
+                <span class="count-chip" data-el="habit-count">0 / 0</span>
+                <a href="habits.html" class="arrow-btn" title="習慣を管理" aria-label="習慣を管理">↗</a>
+              </div>
+              <div data-el="habit-list" class="stack-8 habit-scroll"></div>
+            </section>
           </div>
         </div>
+
+        <aside class="dash-side">
+          <!-- 今日のタスク -->
+          <section class="glass today-card">
+            <div class="card-head">
+              <div>
+                <h2>今日のタスク</h2>
+                <p class="sub">今日が期限のやること</p>
+              </div>
+              <a href="week.html" class="arrow-btn" title="週間ビューを開く" aria-label="週間ビューを開く">↗</a>
+            </div>
+            <div class="tt-head"><span>タスク</span><span>優先度</span><span>状態</span><span>見積</span></div>
+            <div data-el="due-today-list"></div>
+            <button type="button" class="tt-add" data-el="add-toggle-btn">＋ 新しいタスクを追加</button>
+          </section>
+
+          <!-- タイマー -->
+          <section class="glass timer-card">
+            <div class="card-head">
+              <div>
+                <h2>ポモドーロ</h2>
+                <p class="sub" data-el="mode-label">作業中</p>
+              </div>
+              <select data-el="task-select" class="pill-select" aria-label="紐付けるタスク・習慣">
+                <option value="">（紐付けなし）</option>
+              </select>
+            </div>
+            <div class="ring-wrap">
+              <div class="ring-left">
+                <button type="button" class="ctl" data-el="start-btn" title="開始" aria-label="開始"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></button>
+                <button type="button" class="ctl" data-el="pause-btn" title="一時停止" aria-label="一時停止" style="display:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/></svg></button>
+                <button type="button" class="ctl" data-el="reset-btn" title="リセット" aria-label="リセット"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 10 9 10"/></svg></button>
+              </div>
+              <div class="ring" data-el="timer-ring">
+                <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-track" cx="50" cy="50" r="46"/><circle class="ring-fg" cx="50" cy="50" r="46"/></svg>
+                <div class="ring-center">
+                  <div class="timer-display" data-el="time-display">25:00</div>
+                  <div class="ring-unit">残り時間</div>
+                </div>
+              </div>
+              <div class="ring-right">
+                <button type="button" class="ctl light" data-el="skip-btn" title="スキップ" aria-label="スキップ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 4 15 12 5 20"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+              </div>
+            </div>
+            <div class="timer-note" data-el="wake-note" hidden>画面をスリープさせません</div>
+            <div class="timer-stats">
+              <div class="ts-tile"><span>今日</span><b id="ts-today">0</b><small>ポモドーロ</small></div>
+              <div class="ts-tile"><span>直近7日</span><b id="ts-week">0</b><small>ポモドーロ</small></div>
+            </div>
+          </section>
+        </aside>
+
+        <!-- タスク一覧 -->
+        <section class="glass tasks-card dash-wide">
+          <div class="card-head">
+            <div>
+              <h2>タスク一覧</h2>
+              <p class="sub">絞り込みと並び替え</p>
+            </div>
+            <button type="button" class="btn btn-primary" data-el="add-toggle-btn">＋ 新規タスク</button>
+          </div>
+          <div class="filters" data-el="filters"></div>
+          <div data-el="task-list" class="task-grid"></div>
+        </section>
       </div>
+
       <!-- 新規タスク作成モーダル -->
       <div data-el="create-form-wrap" class="dialog-backdrop hidden">
         <form data-el="create-form" class="dialog" style="width:min(460px,100%);max-height:90vh;overflow:auto;">
@@ -97,6 +164,7 @@
   </div>
 
   <script src="common.js"></script>
+  <script src="timer.js"></script>
   <script src="home.js"></script>
 </body>
 </html>

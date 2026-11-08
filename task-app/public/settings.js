@@ -23,3 +23,23 @@ document.getElementById('settings-form').addEventListener('submit', (e) => {
     savedMsg.style.display = 'none';
   }, 2000);
 });
+
+// 表示テーマ（選んだ時点で保存・反映する）
+const themeSeg = document.getElementById('theme-seg');
+function renderThemeSeg() {
+  const pref = getThemePref();
+  themeSeg.querySelectorAll('.seg-opt').forEach((opt) => {
+    const on = opt.dataset.themePref === pref;
+    opt.classList.toggle('active', on);
+    opt.setAttribute('aria-checked', String(on));
+  });
+}
+themeSeg.querySelectorAll('.seg-opt').forEach((opt) => {
+  opt.addEventListener('click', (e) => {
+    e.preventDefault();
+    setThemePref(opt.dataset.themePref);
+    renderThemeSeg();
+  });
+});
+renderThemeSeg();
+document.addEventListener('taskapp:themechange', renderThemeSeg);
