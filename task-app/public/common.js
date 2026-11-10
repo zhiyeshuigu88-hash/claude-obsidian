@@ -101,14 +101,51 @@ function escapeHtml(str) {
 const PRIORITY_LABEL = { high: '高', medium: '中', low: '低' };
 const PRIORITY_TAG_CLASS = { high: 'tag-accent', medium: 'tag-accent-2', low: 'tag-neutral' };
 
+// サーバーに届かないとき（停止中・通信断）は、画面の上に警告を出し、つながり次第ページを読み込み直す。
+// 画面だけがキャッシュから開いて「データが消えた」ように見えるのを防ぐ。
+let offlineBanner = null;
+let offlineTimer = null;
+
+function showOfflineBanner() {
+  if (offlineBanner) return;
+  offlineBanner = document.createElement('div');
+  offlineBanner.className = 'offline-banner';
+  offlineBanner.setAttribute('role', 'alert');
+  offlineBanner.innerHTML =
+    '<span><b>サーバーに接続できません。</b> データは消えていません。サーバーが起動しているか確認してください。</span>' +
+    '<button type="button" class="offline-retry">再読み込み</button>';
+  offlineBanner.querySelector('button').addEventListener('click', () => location.reload());
+  document.body.prepend(offlineBanner);
+
+  // つながるまで 5 秒おきに確かめ、戻ったら読み込み直す
+  offlineTimer = setInterval(async () => {
+    try {
+      const res = await fetch('/api/pomodoro/today-count', { cache: 'no-store' });
+      if (res.ok) location.reload();
+    } catch {
+      // まだつながらない
+    }
+  }, 5000);
+}
+
+// fetch の失敗（TypeError）はネットワーク断。HTTP エラー（4xx/5xx）はサーバーが生きているので対象外。
+async function apiFetch(url, options) {
+  try {
+    return await fetch(url, options);
+  } catch (e) {
+    showOfflineBanner();
+    throw e;
+  }
+}
+
 async function apiGet(url) {
-  const res = await fetch(url);
+  const res = await apiFetch(url);
   if (!res.ok) throw new Error(`GET ${url} failed: ${res.status}`);
   return res.json();
 }
 
 async function apiSend(method, url, body) {
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -118,7 +155,7 @@ async function apiSend(method, url, body) {
 }
 
 async function apiDelete(url) {
-  const res = await fetch(url, { method: 'DELETE' });
+  const res = await apiFetch(url, { method: 'DELETE' });
   if (!res.ok) throw new Error(`DELETE ${url} failed: ${res.status}`);
   return res.json();
 }
