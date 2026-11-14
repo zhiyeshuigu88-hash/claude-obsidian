@@ -1,0 +1,10 @@
+node_modules/
+dist/
+task-app/data/
+
+money/app/data/
+
+.env
+
+# 日記に保存した手書き画像（個人のデータ）
+claude/attachments/
