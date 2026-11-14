@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>その他 | Focus Task</title>
+  <script>
+    try {
+      var t = localStorage.getItem('taskapp.theme');
+      if (t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/m.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#b96945" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body class="m" data-tab="more">
+  <div class="m-app">
+    <header class="m-head"><h1>実績とその他</h1></header>
+
+    <section class="m-more-section">
+      <div class="m-stat-seg">
+        <div class="seg" id="m-stat-seg" role="tablist" aria-label="集計期間">
+          <a href="#" class="seg-opt active" data-range="7">7日間</a>
+          <a href="#" class="seg-opt" data-range="30">30日間</a>
+        </div>
+      </div>
+      <div class="m-chart-card">
+        <svg class="m-chart" id="m-chart" viewBox="0 0 340 200" role="img" aria-label="ポモドーロ回数の推移"></svg>
+        <div class="m-legend"><span><i style="background:var(--m-green-line)"></i>直近</span><span><i style="background:var(--m-orange)"></i>その前</span></div>
+      </div>
+      <div class="m-stat-text" id="m-stat-text"></div>
+    </section>
+
+    <section class="m-more-section">
+      <h2>表示テーマ</h2>
+      <div class="card">
+        <div class="seg" id="theme-seg" role="radiogroup" aria-label="表示テーマ">
+          <a href="#" class="seg-opt" data-theme-pref="light" role="radio">ライト</a>
+          <a href="#" class="seg-opt" data-theme-pref="dark" role="radio">ダーク</a>
+          <a href="#" class="seg-opt" data-theme-pref="system" role="radio">端末に合わせる</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="m-more-section">
+      <h2>ポモドーロ</h2>
+      <form id="settings-form" class="card">
+        <div class="field"><label>作業時間（分）</label><input type="number" id="work-minutes" min="1" inputmode="numeric" /></div>
+        <div class="field"><label>休憩時間（分）</label><input type="number" id="break-minutes" min="1" inputmode="numeric" /></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button type="submit" class="btn btn-primary">保存</button>
+          <span id="saved-msg" class="tag tag-accent-2" style="display:none;">保存しました</span>
+        </div>
+      </form>
+    </section>
+
+    <p class="m-pc-link"><a href="/index.html?ui=pc">PC版の画面で開く</a></p>
+  </div>
+  <nav class="m-tabbar" id="m-tabbar" aria-label="メインメニュー"></nav>
+
+  <script src="/common.js"></script>
+  <script src="/m-common.js"></script>
+  <script src="/m-stats.js"></script>
+  <script src="/settings.js"></script>
+</body>
+</html>

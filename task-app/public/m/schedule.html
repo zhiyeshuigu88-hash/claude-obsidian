@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>予定 | Focus Task</title>
+  <script>
+    try {
+      var t = localStorage.getItem('taskapp.theme');
+      if (t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/m.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#b96945" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body class="m" data-tab="schedule">
+  <div class="m-app">
+    <header class="m-sched-head">
+      <button type="button" class="m-round-btn" id="m-prev" aria-label="前の週"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg></button>
+      <div class="m-sched-title"><h1>予定</h1><small id="m-week-label"></small></div>
+      <button type="button" class="m-round-btn" id="m-next" aria-label="次の週"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 5 16 12 9 19"/></svg></button>
+    </header>
+
+    <div class="m-strip-card"><div class="m-strip" id="m-strip"></div></div>
+
+    <button type="button" class="m-add-bar" id="m-add-box"><span>時間枠を追加する</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+
+    <section>
+      <div class="m-day-line"><h2 id="m-day-title"></h2><button type="button" class="m-today-chip" id="m-today">今日</button></div>
+    </section>
+
+    <section>
+      <div class="m-section-head"><h3>時間枠</h3></div>
+      <div class="m-list" id="m-box-list"></div>
+    </section>
+
+    <section>
+      <div class="m-section-head"><h3>この日のタスク</h3></div>
+      <div class="m-list" id="m-task-list"></div>
+    </section>
+
+    <section id="m-habit-section" class="hidden">
+      <div class="m-section-head"><h3>この日の習慣</h3></div>
+      <div class="m-list" id="m-habit-list"></div>
+    </section>
+
+    <section>
+      <div class="m-section-head"><h3>今週のまとめ</h3></div>
+      <div class="m-summary" id="m-summary"></div>
+    </section>
+
+    <details class="m-details" id="m-unset">
+      <summary><span id="m-unset-title">日付が未設定のタスク</span></summary>
+      <div class="m-list" id="m-unset-list"></div>
+    </details>
+  </div>
+  <nav class="m-tabbar" id="m-tabbar" aria-label="メインメニュー"></nav>
+
+  <script src="/common.js"></script>
+  <script src="/m-common.js"></script>
+  <script src="/m-schedule.js"></script>
+</body>
+</html>
