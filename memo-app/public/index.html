@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,18 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#2c2419">
+  <meta name="theme-color" content="#f7f3ea">
+  <script>
+    // 描画前にテーマを適用して、ちらつきを防ぐ（保存した選択 → なければ端末の設定）
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("folio.theme"); } catch (e) {}
+      var dark = t === "dark" || (t !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+      var m = document.querySelector("meta[name=theme-color]");
+      if (m) m.content = dark ? "#1d1a17" : "#f7f3ea";
+    })();
+  </script>
   <link rel="icon" type="image/png" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta name="mobile-web-app-capable" content="yes">
@@ -17,61 +28,70 @@
   <meta name="apple-mobile-web-app-title" content="Folio">
 </head>
 <body>
-  <div class="page">
-    <header>
-      <div class="header-rule">
-        <p class="eyebrow">Board / Notes / Diary</p>
-        <h1>Folio</h1>
-      </div>
-    </header>
+  <header class="site-header">
+    <div>
+      <div class="logo">Folio</div>
+      <div class="eyebrow">PERSONAL JOURNAL</div>
+    </div>
+    <div class="header-actions">
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ライト / ダークの切り替え">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+        </button>
+    </div>
+  </header>
 
-    <main class="board-grid">
-      <section>
-        <div class="section-head">
-          <span class="accent-dot"></span>
-          <h2>掲示板</h2>
+  <main>
+    <div class="columns">
+      <section class="panel">
+        <div class="heading">
+          <span class="dot"></span>
+          <div><h2>掲示板</h2><div class="eyebrow">BOARD</div></div>
         </div>
-        <form id="board-form" class="entry-form">
-          <textarea name="content" rows="3" placeholder="お知らせ・つぶやきを書く…" required></textarea>
-          <button type="submit" class="btn-primary">投稿</button>
+        <form id="board-form">
+          <textarea name="content" rows="3" placeholder="自分へのひとことを書き留める" required></textarea>
+          <div class="entry"><button type="submit" class="primary">投稿</button></div>
         </form>
         <ul id="board-list" class="entry-list"></ul>
       </section>
 
-      <section>
-        <div class="section-head">
-          <span class="accent-ring"></span>
-          <h2>アイディア・気付きメモ</h2>
+      <section class="panel">
+        <div class="heading">
+          <span class="ring"></span>
+          <div><h2>アイディア・気付きメモ</h2><div class="eyebrow">NOTES</div></div>
         </div>
-        <form id="idea-form" class="entry-form">
-          <textarea name="content" rows="3" placeholder="アイデアや気付いたことを書く…" required></textarea>
-          <button type="submit" class="btn-secondary">追加</button>
+        <form id="idea-form">
+          <textarea name="content" rows="3" placeholder="ふと思いついたことを書き留める" required></textarea>
+          <div class="entry"><button type="submit" class="secondary">＋ 追加</button></div>
         </form>
         <ul id="idea-list" class="entry-list"></ul>
       </section>
-    </main>
+    </div>
 
-    <section class="diary-section">
-      <div class="section-head">
-        <span class="accent-square"></span>
-        <h2>日記</h2>
+    <section class="panel diary">
+      <div class="heading">
+        <span class="square"></span>
+        <div class="grow"><h2>日記</h2><div class="eyebrow">DIARY</div></div>
+        <a class="focus-link" href="diary.html">集中して書く ›</a>
       </div>
-
-      <div class="diary-editor">
-        <div class="diary-nav">
-          <button type="button" id="diary-prev" class="btn-nav" title="前の日">←</button>
-          <span id="diary-date-label" class="diary-date-label"></span>
-          <button type="button" id="diary-next" class="btn-nav" title="次の日">→</button>
-          <button type="button" id="diary-today" class="btn-nav diary-today">今日</button>
-          <span id="diary-status" class="diary-status"></span>
-        </div>
-        <textarea id="diary-textarea" rows="8" placeholder="今日あったこと、考えたことを書く…"></textarea>
+      <div class="diary-nav">
+        <button type="button" id="diary-prev">‹ 前の日</button>
+        <span id="diary-date-label" class="date-title"></span>
+        <button type="button" id="diary-next">次の日 ›</button>
+        <button type="button" id="diary-today">今日に戻る</button>
       </div>
-
-      <ul id="diary-list" class="entry-list diary-list"></ul>
+      <div class="status" id="diary-status"></div>
+      <textarea class="editor" id="diary-textarea" placeholder="今日の出来事や考えたことを書き留める"></textarea>
+      <div class="diary-attach">
+        <button type="button" id="diary-draw" class="secondary">✎ 手書きを追加</button>
+      </div>
+      <div class="hw-gallery" id="diary-images"></div>
+      <div class="eyebrow written-title">書いた日</div>
+      <div class="written" id="diary-list"></div>
     </section>
-  </div>
+  </main>
 
+  <script src="handwriting.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

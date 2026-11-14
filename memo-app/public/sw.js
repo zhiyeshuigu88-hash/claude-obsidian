@@ -1,10 +1,12 @@
 // アプリ本体（HTML/CSS/JS/アイコン）だけをキャッシュする。データ（/api）は常に最新を取りたいので触らない。
 // 取得はネットワーク優先で、オフラインのときだけキャッシュを使う（コード更新がすぐ反映される）。
-const CACHE = 'folio-shell-v1';
+const CACHE = 'folio-shell-v3';
 const SHELL = [
   '/',
   '/index.html',
+  '/diary.html',
   '/style.css',
+  '/handwriting.js',
   '/app.js',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
@@ -28,7 +30,7 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== location.origin || url.pathname.startsWith('/api/')) return;
+  if (url.origin !== location.origin || url.pathname.startsWith('/api/') || url.pathname.startsWith('/attachments/')) return;
 
   event.respondWith(
     fetch(req)

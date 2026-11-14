@@ -40,11 +40,17 @@ function parseSections(filePath) {
   };
 }
 
+// 手書き画像の埋め込み行（例: ![手書き](attachments/handwriting-20261114-153012.png)）
+const IMAGE_LINE_RE = /^!\[[^\]]*\]\(attachments\/[^)]+\)\s*$/;
+
 function listDiaryEntries(filePath) {
   const { sections } = parseSections(filePath);
   return sections
     .map((s) => {
-      const preview = s.content.split('\n').find((l) => l.trim() !== '') || '';
+      const lines = s.content.split('\n');
+      const text = lines.find((l) => l.trim() !== '' && !IMAGE_LINE_RE.test(l));
+      const hasImage = lines.some((l) => IMAGE_LINE_RE.test(l));
+      const preview = text || (hasImage ? '✎ 手書き' : '');
       return { date: s.date, preview: preview.slice(0, 60) };
     })
     .sort((a, b) => (a.date < b.date ? 1 : -1));
