@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>プロセカ スコア管理</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>🎵 プロセカ スコア管理</h1>
+    <div class="nav">
+      <a class="btn" href="graph.html">📈 曲別グラフ</a>
+      <a class="btn primary" href="form.html">＋ 新規登録</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <div class="grow">
+        <input type="search" id="search" placeholder="曲名で検索(部分一致)…" autocomplete="off" />
+      </div>
+      <div class="segmented" id="modeSwitch">
+        <button data-mode="all" class="active">全履歴</button>
+        <button data-mode="best">ベストのみ</button>
+      </div>
+      <select id="sortBy" style="width:auto">
+        <option value="playedAt">プレイ日</option>
+        <option value="score">スコア</option>
+        <option value="songTitle">曲名</option>
+      </select>
+      <button class="btn small" id="sortDir" data-dir="desc" title="昇順/降順">▼ 降順</button>
+    </div>
+
+    <div id="count" class="record-sub" style="margin-bottom:10px"></div>
+    <div id="records" class="records"></div>
+    <div id="empty" class="empty" hidden>記録がありません。「＋ 新規登録」から追加してください。</div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
