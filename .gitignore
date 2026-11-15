@@ -8,3 +8,7 @@ money/app/data/
 
 # 日記に保存した手書き画像（個人のデータ）
 claude/attachments/
+
+# プロセカのスコア記録・リザルト写真（個人のデータ）
+1_Projects/proseka-memory-app/score-memory/
+1_Projects/proseka-memory-app/photo/
