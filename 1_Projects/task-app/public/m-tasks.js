@@ -58,7 +58,7 @@ function addTaskDialog() {
     `<form class="dialog">
        <div class="dialog-title">新しいタスク</div>
        <div class="field"><label>タイトル</label><input name="title" placeholder="何をしますか？" required /></div>
-       <div class="field"><label>期限</label><input name="dueDate" type="datetime-local" /></div>
+       <div class="field"><label>実行日</label><input name="dueDate" type="datetime-local" /></div>
        <div class="field">
          <label>優先度</label>
          <div class="seg" id="m-new-priority">
