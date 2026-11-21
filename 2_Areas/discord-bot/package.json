@@ -1,0 +1,13 @@
+{
+  "name": "kyosuke-bot",
+  "version": "1.0.0",
+  "description": "Discord Bot「kyosuke」",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "node --env-file=.env index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  }
+}

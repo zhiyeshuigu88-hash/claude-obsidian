@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>曲別スコア推移 | プロセカ スコア管理</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>📈 曲別スコア推移</h1>
+    <div class="nav">
+      <a class="btn" href="index.html">← 一覧へ戻る</a>
+      <a class="btn primary" href="form.html">＋ 新規登録</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <select id="songSelect" class="grow"></select>
+    </div>
+
+    <div id="content" hidden>
+      <div class="chart-wrap">
+        <canvas id="scoreChart" height="120"></canvas>
+      </div>
+
+      <h3 style="margin:20px 0 10px">🏆 ベスト記録</h3>
+      <div class="best-summary" id="bestSummary"></div>
+
+      <h3 style="margin:24px 0 10px">プレイ履歴</h3>
+      <div class="history-list" id="historyList"></div>
+    </div>
+
+    <div id="empty" class="empty">グラフを表示する曲を選択してください。</div>
+  </main>
+
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="graph.js"></script>
+</body>
+</html>
