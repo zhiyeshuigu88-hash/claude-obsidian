@@ -160,6 +160,46 @@ async function apiDelete(url) {
   return res.json();
 }
 
+// --- タグ選択（設定画面で作ったタグ一覧から選ぶ） ---
+// 画面側は <div data-tag-picker></div> を置いて fillTagPicker() を呼び、送信時に getTagPickerValue() で選択を取る。
+
+function tagSettingsHref() {
+  return location.pathname.startsWith('/m/') ? '/m/more.html' : '/settings.html';
+}
+
+// 一覧にないタグ（以前に自由入力したもの）も、選択済みなら残して見せる（保存で黙って消さないため）。
+async function fillTagPicker(root, selected = []) {
+  let presets = [];
+  try {
+    presets = await apiGet('/api/tags');
+  } catch {
+    // 取得できなくても、選択済みのタグだけは出す
+  }
+  const extras = selected.filter((t) => !presets.includes(t));
+  const all = [...presets, ...extras];
+  if (all.length === 0) {
+    root.innerHTML = `<p class="tag-picker-empty">タグはまだありません。<a href="${tagSettingsHref()}">設定</a>で作成できます。</p>`;
+    return;
+  }
+  root.className = 'tag-picker';
+  root.innerHTML = all
+    .map(
+      (t) =>
+        `<button type="button" class="tag-opt${selected.includes(t) ? ' on' : ''}${presets.includes(t) ? '' : ' extra'}" data-tag="${escapeHtml(t)}" aria-pressed="${selected.includes(t)}">#${escapeHtml(t)}</button>`
+    )
+    .join('');
+  root.querySelectorAll('.tag-opt').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const on = btn.classList.toggle('on');
+      btn.setAttribute('aria-pressed', String(on));
+    })
+  );
+}
+
+function getTagPickerValue(root) {
+  return [...root.querySelectorAll('.tag-opt.on')].map((b) => b.dataset.tag);
+}
+
 // In-page replacement for window.confirm(), which some embedded browsers suppress (always returns false).
 // ダイアログの共通土台。innerHtml を表示し、setup(backdrop, close) で中身を配線する。
 // close(value) で閉じて Promise を解決する（Esc・背景クリックは null）。

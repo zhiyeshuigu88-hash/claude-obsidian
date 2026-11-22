@@ -674,3 +674,30 @@ textarea.input, textarea { min-height: 80px; padding: 10px 12px; border-radius: 
   flex: none; min-height: 36px; padding: 0 14px; border: 1.5px solid rgba(255, 255, 255, 0.8); border-radius: 999px;
   background: transparent; color: #fff; font: 700 13px/1 inherit; font-family: inherit; cursor: pointer;
 }
+
+/* --- タグ選択（タスクの追加・編集）と タグ管理（設定） --- */
+.tag-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-picker-empty { margin: 0; font-size: 13px; color: var(--color-text-muted, var(--color-neutral-800)); }
+.tag-opt {
+  font: inherit; font-size: 13px; line-height: 1;
+  padding: 8px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--color-divider); background: transparent; color: var(--color-text);
+}
+.tag-opt:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.tag-opt.on { background: var(--color-accent-600); border-color: var(--color-accent-600); color: var(--color-on-accent); }
+.tag-opt.extra { border-style: dashed; }
+.tag-manage { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.tag-chip {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 13px;
+  padding: 6px 6px 6px 12px; border-radius: 999px;
+  background: var(--color-neutral-100); color: var(--color-neutral-800);
+}
+.tag-chip-del {
+  width: 22px; height: 22px; padding: 0; border: none; border-radius: 50%; cursor: pointer;
+  font: inherit; line-height: 1; background: transparent; color: inherit;
+}
+.tag-chip-del:hover { background: color-mix(in srgb, var(--color-text) 12%, transparent); }
+form.tag-add { flex-direction: row; gap: 8px; align-items: stretch; }
+form.tag-add input { flex: 1; min-width: 0; }
+form.tag-add .btn { flex: 0 0 auto; }
+.tag-error { margin: 0; font-size: 13px; color: var(--color-accent-700); }

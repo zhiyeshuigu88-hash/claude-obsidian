@@ -20,7 +20,7 @@ function renderFilters() {
       <a class="seg-opt ${state.status === 'done' ? 'active' : ''}" href="${qs({ status: 'done' })}">完了</a>
     </div>
     <div class="seg">
-      <a class="seg-opt ${state.sortBy === 'dueDate' ? 'active' : ''}" href="${qs({ sortBy: 'dueDate' })}">期限順</a>
+      <a class="seg-opt ${state.sortBy === 'dueDate' ? 'active' : ''}" href="${qs({ sortBy: 'dueDate' })}">実行日順</a>
       <a class="seg-opt ${state.sortBy === 'priority' ? 'active' : ''}" href="${qs({ sortBy: 'priority' })}">優先度順</a>
     </div>
   `;
@@ -73,7 +73,7 @@ function renderDueToday(tasks) {
 
   const html =
     top.length === 0
-      ? '<p class="sub tt-empty">今日が期限のタスクはありません。</p>'
+      ? '<p class="sub tt-empty">今日が実行日のタスクはありません。</p>'
       : top
           .map(
             (t) => `
@@ -103,7 +103,7 @@ function taskCardHtml(t) {
         <a class="title ${t.status === 'done' ? 'done' : ''}" href="task.html?id=${t.id}">${escapeHtml(t.title)}</a>
         ${priorityPill(t.priority)}
       </div>
-      ${t.dueDate ? `<div class="card-meta">期限: ${formatDateTime(t.dueDate)}</div>` : ''}
+      ${t.dueDate ? `<div class="card-meta">実行日: ${formatDateTime(t.dueDate)}</div>` : ''}
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0;">
         ${(t.tags || []).map((tag) => `<span class="tag tag-neutral">#${escapeHtml(tag)}</span>`).join('')}
       </div>
@@ -153,6 +153,7 @@ const createModal = scoped(document, 'create-form-wrap')[0];
 
 function openCreateModal() {
   createModal.classList.remove('hidden');
+  fillTagPicker(createModal.querySelector('[data-tag-picker]'));
   createModal.querySelector('[name="title"]').focus();
 }
 
@@ -191,10 +192,7 @@ scoped(document, 'create-form').forEach((form) => {
       dueDate: fromLocalInputValue(data.get('dueDate')),
       priority: newPriority,
       estimateMinutes: data.get('estimateMinutes') ? Number(data.get('estimateMinutes')) : null,
-      tags: String(data.get('tags') || '')
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean),
+      tags: getTagPickerValue(form.querySelector('[data-tag-picker]')),
     });
     scoped(document, 'create-form').forEach((f) => f.reset());
     newPriority = 'medium';

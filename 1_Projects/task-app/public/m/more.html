@@ -52,6 +52,22 @@
     </section>
 
     <section class="m-more-section">
+      <h2>タグ</h2>
+      <div class="card">
+        <div class="field">
+          <label>タグ</label>
+          <div class="tag-manage" id="tag-list"></div>
+          <form id="tag-form" class="tag-add">
+            <input id="tag-input" maxlength="20" placeholder="新しいタグ名" autocomplete="off" />
+            <button type="submit" class="btn btn-primary">追加</button>
+          </form>
+          <p id="tag-error" class="tag-error" hidden></p>
+          <p class="text-muted" style="font-size:12px;margin:0;">ここで作ったタグを、タスクの追加・編集で選べます。タグを消しても、すでにタスクに付いているタグは残ります。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="m-more-section">
       <h2>ポモドーロ</h2>
       <form id="settings-form" class="card">
         <div class="field"><label>作業時間（分）</label><input type="number" id="work-minutes" min="1" inputmode="numeric" /></div>

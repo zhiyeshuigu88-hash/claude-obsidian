@@ -11,7 +11,7 @@ const STATUS_OPTIONS = [
   ['all', 'すべて'],
 ];
 const SORT_OPTIONS = [
-  ['dueDate', '期限順'],
+  ['dueDate', '実行日順'],
   ['priority', '優先度順'],
 ];
 
@@ -71,7 +71,7 @@ function addTaskDialog() {
        <details class="m-details">
          <summary>詳細・タグ</summary>
          <div class="field" style="margin-top:8px;"><label>詳細</label><textarea name="description" rows="2"></textarea></div>
-         <div class="field" style="margin-top:8px;"><label>タグ（カンマ区切り）</label><input name="tags" /></div>
+         <div class="field" style="margin-top:8px;"><label>タグ</label><div data-tag-picker></div></div>
        </details>
        <div class="dialog-actions">
          <button type="button" class="btn btn-ghost" data-cancel>キャンセル</button>
@@ -97,13 +97,11 @@ function addTaskDialog() {
           dueDate: fromLocalInputValue(data.get('dueDate')),
           priority,
           estimateMinutes: data.get('estimateMinutes') ? Number(data.get('estimateMinutes')) : null,
-          tags: String(data.get('tags') || '')
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean),
+          tags: getTagPickerValue(form.querySelector('[data-tag-picker]')),
         });
         close(true);
       });
+      fillTagPicker(form.querySelector('[data-tag-picker]'));
       form.elements.title.focus();
     }
   );

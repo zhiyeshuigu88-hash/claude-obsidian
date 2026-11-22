@@ -43,3 +43,53 @@ themeSeg.querySelectorAll('.seg-opt').forEach((opt) => {
 });
 renderThemeSeg();
 document.addEventListener('taskapp:themechange', renderThemeSeg);
+
+// タグ（あらかじめ作っておく一覧。サーバーに保存するので PC・スマホで共通）
+const tagListEl = document.getElementById('tag-list');
+const tagFormEl = document.getElementById('tag-form');
+const tagInputEl = document.getElementById('tag-input');
+const tagErrorEl = document.getElementById('tag-error');
+
+function showTagError(msg) {
+  tagErrorEl.textContent = msg || '';
+  tagErrorEl.hidden = !msg;
+}
+
+async function renderTagList() {
+  const tags = await apiGet('/api/tags');
+  tagListEl.innerHTML = tags.length
+    ? tags
+        .map(
+          (t) =>
+            `<span class="tag-chip">#${escapeHtml(t)}<button type="button" class="tag-chip-del" data-tag="${escapeHtml(t)}" aria-label="タグ「${escapeHtml(t)}」を削除">×</button></span>`
+        )
+        .join('')
+    : '<span class="text-muted" style="font-size:13px;">まだタグがありません。下の欄から追加できます。</span>';
+}
+
+tagListEl.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.tag-chip-del');
+  if (!btn) return;
+  showTagError('');
+  await apiDelete(`/api/tags/${encodeURIComponent(btn.dataset.tag)}`);
+  renderTagList();
+});
+
+tagFormEl.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  showTagError('');
+  const res = await apiFetch('/api/tags', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: tagInputEl.value }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    showTagError(body.error || 'タグを追加できませんでした');
+    return;
+  }
+  tagInputEl.value = '';
+  renderTagList();
+});
+
+renderTagList();

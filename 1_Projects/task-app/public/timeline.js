@@ -217,7 +217,7 @@ function renderDayTasks(tasks, boxes) {
   dayTasksCountEl.textContent = `${dayTasks.length}件`;
 
   if (dayTasks.length === 0) {
-    dayTasksListEl.innerHTML = '<div class="day-tasks-empty">この日が期限のタスクはありません。</div>';
+    dayTasksListEl.innerHTML = '<div class="day-tasks-empty">この日が実行日のタスクはありません。</div>';
     return;
   }
 
@@ -233,7 +233,7 @@ function renderDayTasks(tasks, boxes) {
       return `
         <div class="day-task ${t.status === 'done' ? 'done' : ''}">
           <input type="checkbox" data-id="${t.id}" data-status="${t.status}" ${t.status === 'done' ? 'checked' : ''} aria-label="完了" />
-          <span class="day-task-time">期限 ${formatClock(t.dueDate)}</span>
+          <span class="day-task-time">実行日 ${formatClock(t.dueDate)}</span>
           <a class="day-task-title" href="task.html?id=${t.id}">${escapeHtml(t.title)}</a>
           <div class="day-task-chips">${chips.join('')}</div>
         </div>`;

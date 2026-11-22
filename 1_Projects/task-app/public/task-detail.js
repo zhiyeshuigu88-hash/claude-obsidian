@@ -58,12 +58,12 @@ async function render() {
     <form id="edit-form" class="card" style="margin-bottom:20px;">
       <div class="field"><label>タイトル</label><input name="title" value="${escapeHtml(task.title)}" required /></div>
       <div class="field"><label>詳細</label><textarea name="description" rows="3">${escapeHtml(task.description || '')}</textarea></div>
-      <div class="field"><label>期限</label><input name="dueDate" type="datetime-local" value="${toLocalInputValue(task.dueDate)}" /></div>
+      <div class="field"><label>実行日</label><input name="dueDate" type="datetime-local" value="${toLocalInputValue(task.dueDate)}" /></div>
       <div class="field">
         <label>優先度</label>
         <div class="seg" id="edit-priority-seg">${prioritySegHtml(task.priority)}</div>
       </div>
-      <div class="field"><label>タグ（カンマ区切り）</label><input name="tags" value="${escapeHtml((task.tags || []).join(', '))}" placeholder="タグ（カンマ区切り）" /></div>
+      <div class="field"><label>タグ</label><div data-tag-picker></div></div>
       <div class="field"><label>見積もり時間（分・任意）</label><input name="estimateMinutes" type="number" min="1" placeholder="例: 30" value="${task.estimateMinutes || ''}" /></div>
       <button type="submit" class="btn btn-primary" style="align-self:flex-start;">保存</button>
     </form>
@@ -88,6 +88,8 @@ async function render() {
     </form>
   `;
 
+  fillTagPicker(contentEl.querySelector('[data-tag-picker]'), task.tags || []);
+
   const editPrioritySeg = document.getElementById('edit-priority-seg');
   editPrioritySeg.querySelectorAll('.seg-opt').forEach((opt) => {
     opt.addEventListener('click', (e) => {
@@ -106,10 +108,7 @@ async function render() {
       dueDate: fromLocalInputValue(data.get('dueDate')),
       priority: editPriority,
       estimateMinutes: data.get('estimateMinutes') ? Number(data.get('estimateMinutes')) : null,
-      tags: String(data.get('tags') || '')
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean),
+      tags: getTagPickerValue(e.target.querySelector('[data-tag-picker]')),
     });
     render();
   });

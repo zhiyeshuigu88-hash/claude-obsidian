@@ -104,7 +104,7 @@ function render() {
           .join('');
 
   const due = tasksDueOn(selected);
-  taskListEl.innerHTML = due.length === 0 ? '<p class="m-empty">この日が期限のタスクはありません。</p>' : due.map(mTaskRow).join('');
+  taskListEl.innerHTML = due.length === 0 ? '<p class="m-empty">この日が実行日のタスクはありません。</p>' : due.map(mTaskRow).join('');
 
   const todays = habits.filter((h) => h.scheduled);
   habitSectionEl.classList.toggle('hidden', todays.length === 0);

@@ -4,6 +4,7 @@ const taskStore = require('./lib/taskStore');
 const pomodoroStore = require('./lib/pomodoroStore');
 const timeboxStore = require('./lib/timeboxStore');
 const habitStore = require('./lib/habitStore');
+const tagStore = require('./lib/tagStore');
 const breakdown = require('./lib/breakdown');
 
 const app = express();
@@ -98,6 +99,26 @@ app.put('/api/tasks/:id', (req, res) => {
 
 app.delete('/api/tasks/:id', (req, res) => {
   taskStore.deleteTask(req.params.id);
+  res.json({ ok: true });
+});
+
+// --- Tags（あらかじめ作っておくタグの一覧） ---
+
+app.get('/api/tags', (req, res) => {
+  res.json(tagStore.listTags());
+});
+
+app.post('/api/tags', (req, res) => {
+  try {
+    const tag = tagStore.addTag(req.body && req.body.name);
+    res.status(201).json({ name: tag });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.delete('/api/tags/:name', (req, res) => {
+  if (!tagStore.removeTag(req.params.name)) return res.status(404).json({ error: 'not found' });
   res.json({ ok: true });
 });
 

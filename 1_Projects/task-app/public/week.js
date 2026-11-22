@@ -81,7 +81,7 @@ function renderWeek(days, tasks, boxes) {
             <span class="week-day-name">${WEEKDAYS[d.getDay()]}</span>
             <span class="week-day-date">${d.getMonth() + 1}/${d.getDate()}</span>
           </a>
-          ${taskHtml ? `<div class="week-section-label">期限</div>${taskHtml}` : ''}
+          ${taskHtml ? `<div class="week-section-label">実行日</div>${taskHtml}` : ''}
           ${boxHtml ? `<div class="week-section-label">時間枠</div>${boxHtml}` : ''}
           ${empty}
         </section>`;
@@ -167,7 +167,7 @@ function renderUnassigned(list) {
         const d = new Date(t.dueDate);
         chips.push(`<span class="tag tag-accent">${d.getMonth() + 1}/${d.getDate()}まで</span>`);
       } else {
-        chips.push('<span class="tag tag-neutral">期限なし</span>');
+        chips.push('<span class="tag tag-neutral">実行日なし</span>');
       }
       return `
         <div class="unassigned-card" draggable="true" data-id="${t.id}">
@@ -273,7 +273,7 @@ function createTaskDialog() {
            <a href="#" class="seg-opt" data-value="low">低</a>
          </div>
        </div>
-       <div class="field"><label>タグ（カンマ区切り）</label><input name="tags" placeholder="タグ（カンマ区切り）" /></div>
+       <div class="field"><label>タグ</label><div data-tag-picker></div></div>
        <div class="field"><label>見積もり時間（分・任意）</label><input name="estimateMinutes" type="number" min="1" placeholder="例: 30" /></div>
        <div class="dialog-actions">
          <button type="button" class="btn btn-ghost" data-cancel>キャンセル</button>
@@ -283,6 +283,7 @@ function createTaskDialog() {
     (backdrop, close) => {
       const form = backdrop.querySelector('form');
       form.querySelector('[name="title"]').focus();
+      fillTagPicker(form.querySelector('[data-tag-picker]'));
       form.querySelectorAll('.seg-opt').forEach((opt) => {
         opt.addEventListener('click', (e) => {
           e.preventDefault();
@@ -299,7 +300,7 @@ function createTaskDialog() {
           description: data.get('description'),
           dueDate: data.get('dueDate') ? new Date(String(data.get('dueDate'))).toISOString() : null,
           priority,
-          tags: String(data.get('tags') || '').split(',').map((t) => t.trim()).filter(Boolean),
+          tags: getTagPickerValue(form.querySelector('[data-tag-picker]')),
           estimateMinutes: data.get('estimateMinutes') ? Number(data.get('estimateMinutes')) : null,
         });
         close(true);
