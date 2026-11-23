@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const {
   ActionRowBuilder,
@@ -27,6 +28,7 @@ const DIARY_FILE = path.join(DATA_DIR, 'Diary.md');
 // TASK_APP_DIR で場所を切り替え可能（テスト用。通常は未設定でよい）
 const TASK_DIR = process.env.TASK_APP_DIR || path.join(__dirname, '..', '..', '1_Projects', 'task-app');
 const taskStore = require(path.join(TASK_DIR, 'lib', 'taskStore.js'));
+const habitStore = require(path.join(TASK_DIR, 'lib', 'habitStore.js'));
 const PRIORITY_ICON = { high: '🔴', medium: '🟡', low: '🟢' };
 
 // 期限の入力: 「2026-11-20」「2026-11-20 18:30」「今日」「明日 9:00」。
@@ -82,6 +84,104 @@ const todayStr = () => {
   const p = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 };
+
+// ---- 朝の通知（毎朝、持ち主に DM で今日のタスクと習慣を送る）----
+// NOTIFY_TIME=HH:MM（既定 07:30）。'off' で無効。送信済みの日付は notify-state.json に記録して二重送信を防ぐ。
+const NOTIFY_TIME = (process.env.NOTIFY_TIME || '07:30').trim();
+const NOTIFY_STATE_FILE = process.env.NOTIFY_STATE_FILE || path.join(__dirname, 'notify-state.json');
+const NOTIFY_WINDOW_MIN = 240; // 指定時刻に bot が止まっていても、この分数以内に起動すれば遅れて送る
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+const WEEKDAYS = '日月火水木金土';
+
+function buildMorningMessage(now = new Date()) {
+  const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const open = taskStore.listTasks({ status: 'todo' });
+  const dueToday = taskStore.listTasksDueToday().filter((t) => t.status !== 'done');
+  const overdue = open.filter((t) => t.dueDate && new Date(t.dueDate) < dayStart);
+  const noDue = open.filter((t) => !t.dueDate).length;
+  // 今日やる習慣: 今日が対象日で、未実施。週N回の習慣は今週の目標に達していれば出さない
+  const habits = habitStore
+    .listWithStatus(habitStore.todayKey())
+    .filter((h) => h.scheduled && !h.done && !(h.repeat.type === 'weekly' && h.week.target > 0 && h.week.done >= h.week.target));
+
+  const habitLine = (h) => {
+    const time = h.startTime ? `${h.startTime} ` : '';
+    let tail = '';
+    if (h.repeat.type === 'weekly') tail = ` — 今週 ${h.week.done}/${h.week.target}`;
+    else if (h.streak.count > 0) tail = ` — 🔥${h.streak.count}日連続`;
+    return `⬜ ${time}${clip(h.title, 60)}${tail}`;
+  };
+
+  const parts = [`☀️ **おはようございます**（${now.getMonth() + 1}/${now.getDate()} ${WEEKDAYS[now.getDay()]}）`];
+  const add = (title, items, fmt) => {
+    if (!items.length) return;
+    const shown = items.slice(0, 10).map(fmt).join('\n');
+    parts.push(`${title}（${items.length}件）\n${shown}${items.length > 10 ? `\n…ほか ${items.length - 10}件` : ''}`);
+  };
+  add('📋 **今日のタスク**', dueToday, taskLine);
+  add('⚠️ **期限切れ**', overdue, (t) => taskLine(t).replace(' ⚠️期限切れ', ''));
+  add('🔁 **今日の習慣**', habits, habitLine);
+  if (parts.length === 1) parts.push('今日は予定されたタスクも習慣もありません 🎉');
+  if (noDue > 0) parts.push(`📝 期限なしの未完了タスク: ${noDue}件`);
+  return clip(parts.join('\n\n'), 1900);
+}
+
+function readNotifyState() {
+  try {
+    return JSON.parse(fs.readFileSync(NOTIFY_STATE_FILE, 'utf-8'));
+  } catch {
+    return {};
+  }
+}
+function writeNotifyState(state) {
+  fs.writeFileSync(NOTIFY_STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
+}
+
+let morningSending = false;
+let morningFailures = { date: '', count: 0 };
+
+async function maybeSendMorning(now = new Date()) {
+  const [h, m] = NOTIFY_TIME.split(':').map(Number);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const target = h * 60 + m;
+  if (nowMin < target || nowMin >= target + NOTIFY_WINDOW_MIN) return;
+
+  const today = todayStr();
+  if (readNotifyState().lastSentDate === today) return; // 今日はもう送った
+  if (morningFailures.date === today && morningFailures.count >= 3) return; // DM が拒否されている等。今日は諦める
+  if (morningSending) return;
+
+  morningSending = true;
+  const previous = readNotifyState();
+  try {
+    // 先に「送った」と記録する（記録に失敗して二重送信になるより、送れず再試行のほうが安全）
+    writeNotifyState({ lastSentDate: today, sentAt: now.toISOString() });
+    const user = await client.users.fetch(OWNER_ID);
+    await user.send({ content: buildMorningMessage(now), allowedMentions: NO_PING });
+    console.log(`朝の通知を送りました: ${today}`);
+  } catch (err) {
+    writeNotifyState(previous); // 送れなかったので記録を戻し、次の1分後に再試行する
+    morningFailures = { date: today, count: morningFailures.date === today ? morningFailures.count + 1 : 1 };
+    console.error(`朝の通知に失敗しました（${morningFailures.count}回目）:`, err.message);
+  } finally {
+    morningSending = false;
+  }
+}
+
+function startMorningNotifier() {
+  if (NOTIFY_TIME.toLowerCase() === 'off') {
+    console.log('朝の通知: 無効（NOTIFY_TIME=off）');
+    return;
+  }
+  if (!OWNER_ID || !TIME_RE.test(NOTIFY_TIME)) {
+    console.error(`朝の通知: OWNER_ID が未設定、または NOTIFY_TIME（${NOTIFY_TIME}）が HH:MM 形式ではないため無効です`);
+    return;
+  }
+  console.log(`朝の通知: 毎日 ${NOTIFY_TIME} に DM で送ります`);
+  const tick = () => maybeSendMorning().catch((err) => console.error('朝の通知でエラー:', err));
+  tick(); // 起動直後にも確認する（指定時刻を過ぎてから起動した場合の取りこぼし対策）
+  setInterval(tick, 60_000);
+}
 
 const token = process.env.DISCORD_TOKEN;
 if (!token) {
@@ -520,6 +620,20 @@ const commands = [
       });
     },
   },
+  // 朝の通知と同じ内容を、いつでも本人にだけ表示する（確認用。通知の送信済み記録には影響しない）
+  {
+    data: new SlashCommandBuilder()
+      .setName('morning')
+      .setDescription('朝の通知と同じ内容（今日のタスクと習慣）を今すぐ表示します'),
+    async execute(interaction) {
+      if (!(await requireOwner(interaction))) return;
+      await interaction.reply({
+        content: buildMorningMessage(),
+        flags: MessageFlags.Ephemeral,
+        allowedMentions: NO_PING,
+      });
+    },
+  },
 ];
 
 const commandMap = new Map(commands.map((c) => [c.data.name, c]));
@@ -540,6 +654,7 @@ client.once(Events.ClientReady, async (c) => {
   for (const guild of c.guilds.cache.values()) {
     await registerCommands(guild);
   }
+  startMorningNotifier();
 });
 
 // 起動後に bot が新しいサーバーへ招待されたときも登録する
