@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>記録の登録・編集 | プロセカ スコア管理</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1 id="formTitle">🎵 記録の新規登録</h1>
+    <div class="nav">
+      <a class="btn" href="index.html">← 一覧へ戻る</a>
+    </div>
+  </header>
+
+  <main>
+    <form id="scoreForm" class="form-grid" novalidate>
+      <div class="field full">
+        <label>結果画面の写真(任意・1枚)</label>
+        <div class="photo-drop" id="photoDrop">クリックして写真を選択(この写真を見ながら下の数値を入力します)</div>
+        <input type="file" id="photo" accept="image/*" hidden />
+        <img id="photoPreview" class="photo-preview" hidden alt="プレビュー" />
+        <button type="button" class="btn small" id="removePhoto" hidden style="margin-top:8px">写真を外す</button>
+      </div>
+
+      <div class="field full">
+        <label for="songTitle">曲名 <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="songTitle" list="songList" autocomplete="off" required />
+        <datalist id="songList"></datalist>
+      </div>
+
+      <div class="field">
+        <label for="difficulty">難易度 <span style="color:var(--danger)">*</span></label>
+        <select id="difficulty" required></select>
+      </div>
+      <div class="field">
+        <label for="rank">クリアランク <span style="color:var(--danger)">*</span></label>
+        <select id="rank" required></select>
+      </div>
+
+      <div class="field">
+        <label for="score">合計スコア <span style="color:var(--danger)">*</span></label>
+        <input type="number" id="score" min="0" step="1" required />
+      </div>
+      <div class="field">
+        <label for="maxCombo">最長コンボ数 <span style="color:var(--danger)">*</span></label>
+        <input type="number" id="maxCombo" min="0" step="1" required />
+      </div>
+
+      <div class="field full">
+        <label>判定数 <span style="color:var(--danger)">*</span></label>
+        <div class="judgments">
+          <div class="field"><label for="perfect">Perfect</label><input type="number" id="perfect" min="0" step="1" required /></div>
+          <div class="field"><label for="great">Great</label><input type="number" id="great" min="0" step="1" required /></div>
+          <div class="field"><label for="good">Good</label><input type="number" id="good" min="0" step="1" required /></div>
+          <div class="field"><label for="bad">Bad</label><input type="number" id="bad" min="0" step="1" required /></div>
+          <div class="field"><label for="miss">Miss</label><input type="number" id="miss" min="0" step="1" required /></div>
+        </div>
+      </div>
+
+      <div class="field full">
+        <label>FC / AP(判定数から自動判定・手動上書き可)</label>
+        <div class="flags-row">
+          <label class="flag"><input type="checkbox" id="isFullCombo" /> フルコンボ (FC)</label>
+          <label class="flag"><input type="checkbox" id="isAllPerfect" /> オールパーフェクト (AP)</label>
+          <span class="hint" id="autoFlagHint"></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="playedAt">プレイ日 <span style="color:var(--danger)">*</span></label>
+        <input type="date" id="playedAt" required />
+      </div>
+
+      <div class="field full error-msg" id="errorMsg"></div>
+
+      <div class="form-actions">
+        <a class="btn" href="index.html">キャンセル</a>
+        <button type="submit" class="btn primary" id="submitBtn">保存</button>
+      </div>
+    </form>
+  </main>
+
+  <script src="form.js"></script>
+</body>
+</html>

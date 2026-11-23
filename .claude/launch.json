@@ -1,0 +1,33 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "memo-app",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["1_Projects/memo-app/server.js"],
+      "port": 3001,
+      "autoPort": true
+    },
+    {
+      "name": "task-app",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["1_Projects/task-app/server.js"],
+      "port": 3002,
+      "autoPort": true
+    },
+    {
+      "name": "proseka-memory-app",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["1_Projects/proseka-memory-app/server.js"],
+      "port": 3003,
+      "autoPort": true
+    },
+    {
+      "name": "filament-keeper-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "2_Areas/filament-keeper-web", "run", "dev"],
+      "port": 3004,
+      "autoPort": true
+    }
+  ]
+}
