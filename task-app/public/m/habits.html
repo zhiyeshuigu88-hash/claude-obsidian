@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>習慣 | Focus Task</title>
+  <script>
+    try {
+      var t = localStorage.getItem('taskapp.theme');
+      if (t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/m.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#b96945" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body class="m" data-tab="habits">
+  <div class="m-app">
+    <header class="m-head"><h1>習慣</h1><button type="button" class="btn btn-primary" id="add-habit-btn">＋ 追加</button></header>
+    <section class="card habit-overview hidden" id="habit-overview"></section>
+    <div class="habit-list" id="habit-list"></div>
+  </div>
+  <nav class="m-tabbar" id="m-tabbar" aria-label="メインメニュー"></nav>
+
+  <script src="/common.js"></script>
+  <script src="/m-common.js"></script>
+  <script src="/habits.js"></script>
+</body>
+</html>

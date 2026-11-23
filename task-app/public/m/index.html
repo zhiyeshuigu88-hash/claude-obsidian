@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Focus Task</title>
+  <script>
+    try {
+      var t = localStorage.getItem('taskapp.theme');
+      if (t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/m.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#b96945" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Focus Task" />
+</head>
+<body class="m" data-tab="home">
+  <div class="m-app">
+    <header class="m-head"><span class="m-date" id="m-date"></span><span class="m-mode" data-el="mode-label">作業中</span></header>
+
+    <section class="m-hero">
+      <div class="m-ring" data-el="timer-ring">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="rt" cx="50" cy="50" r="44"/><circle class="rf" cx="50" cy="50" r="44"/></svg>
+        <div class="m-ring-in">
+          <div class="timer-display" data-el="time-display">25:00</div>
+          <div class="m-ring-mode">残り時間</div>
+        </div>
+      </div>
+
+      <div class="m-ctl">
+        <button type="button" class="m-pill" data-el="reset-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg>リセット</button>
+        <button type="button" class="m-pill" data-el="start-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>開始</button>
+        <button type="button" class="m-pill" data-el="pause-btn" style="display:none;"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/></svg>一時停止</button>
+      </div>
+      <button type="button" class="m-skip" data-el="skip-btn">スキップ</button>
+
+      <div class="m-target">
+        <span class="m-target-label">いま取り組むこと</span>
+        <select data-el="task-select" aria-label="紐付けるタスク・習慣"><option value="">（紐付けなし）</option></select>
+        <div class="timer-note" data-el="wake-note" hidden>画面をスリープさせません</div>
+      </div>
+    </section>
+
+    <div class="m-round" aria-label="今日のポモドーロ">
+      <b id="m-round-label">Round 1</b>
+      <span class="m-dots-round" id="m-round-dots"></span>
+    </div>
+
+    <section>
+      <div class="m-section-head">
+        <h2>今日やること</h2>
+        <span class="tag tag-accent-2" id="m-today-count">0 / 0</span>
+      </div>
+      <div class="m-list" id="m-today-list"></div>
+      <a class="m-more-link" href="tasks.html">タスクをすべて見る →</a>
+    </section>
+  </div>
+  <nav class="m-tabbar" id="m-tabbar" aria-label="メインメニュー"></nav>
+
+  <script src="/common.js"></script>
+  <script src="/m-common.js"></script>
+  <script src="/timer.js"></script>
+  <script src="/m-home.js"></script>
+</body>
+</html>
